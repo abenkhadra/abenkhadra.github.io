@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Floating-point satisfiability as global optimization - Formally Applied</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.formallyapplied.com/2017/05/gosat-faq/">
+
+        <meta name="author" content="Ammar Ben Khadra" />
+        <meta name="keywords" content="smt,floating-point" />
+        <meta name="description" content="Solving SMT formulas involving the theory of floating-pointing arithmetic (FPA) can be encountered in several domains including symbolic execution and program synthesis. Unfortunately, SMT solvers which support FPA often struggle trying to satisfy …" />
+
+        <meta property="og:site_name" content="Formally Applied" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Floating-point satisfiability as global optimization"/>
+        <meta property="og:url" content="https://blog.formallyapplied.com/2017/05/gosat-faq/"/>
+        <meta property="og:description" content="Solving SMT formulas involving the theory of floating-pointing arithmetic (FPA) can be encountered in several domains including symbolic execution and program synthesis. Unfortunately, SMT solvers which support FPA often struggle trying to satisfy …"/>
+        <meta property="article:published_time" content="2017-05-10" />
+            <meta property="article:section" content="misc" />
+            <meta property="article:tag" content="smt" />
+            <meta property="article:tag" content="floating-point" />
+            <meta property="article:author" content="Ammar Ben Khadra" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/bootstrap.formally.min.css" type="text/css"/>
+    <link href="https://blog.formallyapplied.com/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="https://blog.formallyapplied.com/theme/css/pygments/tango.css" rel="stylesheet">
+        <link href="https://blog.formallyapplied.com/theme/css/typogrify.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/style.css" type="text/css"/>
+
+        <link href="https://blog.formallyapplied.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Formally Applied ATOM Feed"/>
+
+
+
+        <link href="https://blog.formallyapplied.com/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Formally Applied misc ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.formallyapplied.com/" class="navbar-brand">
+<img class="img-responsive pull-left gap-right" src="https://blog.formallyapplied.com/images/logo.png" width="28"/> Formally Applied            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/pages/about/">About</a></li>
+                    <li><a href="/archives.html">Archives</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.formallyapplied.com/2017/05/gosat-faq/"
+                       rel="bookmark"
+                       title="Permalink to Floating-point satisfiability as global optimization">
+                        Floating-point satisfiability as global&nbsp;optimization
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default"></span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2017-05-10T10:20:00+02:00"> 10 May 2017</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="https://blog.formallyapplied.com/tag/smt.html">smt</a>
+        /
+	<a href="https://blog.formallyapplied.com/tag/floating-point.html">floating-point</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Solving <span class="caps">SMT</span> formulas involving the theory of floating-pointing arithmetic (<span class="caps">FPA</span>)
+can be required in several domains including symbolic execution, test generation,
+and program synthesis. Unfortunately, <span class="caps">SMT</span> solvers often struggle
+trying to satisfy given <span class="caps">FPA</span> queries. Additionally, commonly used non-linear functions,
+e.g. trigonometric, remain unsupported.
+This leaves tool developers with limited options like employing uninterpreted functions
+which can be tricky or work around the issue by ignoring <span class="caps">FPA</span>&nbsp;altogether.</p>
+<p>Recently, I&#8217;ve been exploring <a class="reference external" href="https://en.wikipedia.org/wiki/Global_optimization">global optimization</a>
+as an alternative option for tackling this problem. This approach is unconventional
+in the sense that it departs away from the known and trusted <span class="caps">DPLL</span>(T) framework.
+This work is based on the ideas published in the <a class="reference external" href="http://dx.doi.org/10.1007/978-3-319-41540-6_11">XSat</a>
+paper by Fu et al. (<span class="caps">CAV</span>&#8216;16). Our results are discussed in this <a class="reference external" href="/docs/gosat.pdf">report</a>.
+This work is implemented in the <span class="caps">SMT</span> solver <em>goSAT</em> which is publicly <a class="reference external" href="https://github.com/abenkhadra/gosat">available</a>.
+We provide in the following an appendix to our report in Q&amp;A format.
+I find this format particularly useful for providing quick takeaways
+to interested readers.
+Additionally, it can help in clearing possible&nbsp;misunderstandings.</p>
+<div class="section" id="appendix">
+<h2>Appendix</h2>
+<blockquote class="pull-quote">
+<strong>Note</strong>. This appendix was edited in collaboration with Dominik Stoffel and Wolfgang Kunz.
+Errors and omissions are mine.</blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Q:</th><td class="field-body"><em>Evaluations results demonstrate that MathSat still compares favorably in terms of <span class="caps">SAT</span> instances solved.
+Why do we need exploring alternatives to conventional solvers?</em></td>
+</tr>
+<tr class="field"><th class="field-name">A:</th><td class="field-body">Our experimental evaluation considered only one set of <span class="caps">FPA</span> benchmarks.
+Hence, it&#8217;s still early to draw general conclusions.
+Actually, our main target was assessing the potential of different <span class="caps">GO</span>
+algorithms rather than comparing with MathSAT. Also, the merit of goSAT
+is that it can, in principle, reason about any executable function, e.g., trigonometric
+functions, which is not possible in MathSat. Further, extending MathSat to
+Optimization-Modulo-Theory (<span class="caps">OMT</span>) over <span class="caps">FPA</span> will require implementing <span class="caps">GO</span> algorithms
+similar to the ones we discussed. Finally, goSAT has a significant advantage in
+terms of query time and used memory despite the fact that it&#8217;s still at an early stage.</td>
+</tr>
+<tr class="field"><th class="field-name">Q:</th><td class="field-body"><em>Wouldn&#8217;t compiler optimizations affect the soundness of the results?</em></td>
+</tr>
+<tr class="field"><th class="field-name">A:</th><td class="field-body">goSAT emits a restricted <span class="caps">IR</span> subset that doesn&#8217;t have common features
+like loops and heap allocations. Also, compiler optimizations are restricted to only one
+function representing <span class="math">\(\mathcal{G}(\vec{x})\)</span>, i.e. intra-procedural optimizations only.
+Works on compiler validation e.g. <span class="caps">EMI</span> <a class="citation-reference" href="#pldi14" id="id1">[<span class="caps">PLDI14</span>]</a> and CSmith <a class="citation-reference" href="#pldi11" id="id2">[<span class="caps">PLDI11</span>]</a>, demonstrate that
+compiler <em>miscompilation</em> bugs generally require code with more complex features.
+Additionally, goSAT is incomplete when stochastic <span class="caps">GO</span> algorithms are applied.
+However, it is sound w.r.t. <span class="caps">SAT</span> results.
+<span class="caps">SAT</span> results are easy to validate externally using a simple evaluation.
+We implemented this feature in goSAT and, so far, did not encounter invalid results.
+Consequently, we do not consider potential compiler bugs to be a serious drawback.</td>
+</tr>
+<tr class="field"><th class="field-name">Q:</th><td class="field-body"><em>What are the contributions of goSAT over XSat?</em></td>
+</tr>
+<tr class="field"><th class="field-name">A:</th><td class="field-body">We provide several contributions over XSat.
+First, XSat discussed one stochastic <span class="caps">GO</span> algorithm (<span class="caps">MCMC</span> sampling) and used Scipy as backend
+in the experimentation. Scipy supports only one <span class="caps">GO</span> algorithm, namely, Basin Hopping.
+In comparison, we provide a design-space exploration of different algorithms and backends, e.g., NLopt and IpOpt.
+We evaluated four stochastic algorithms and one deterministic algorithm.
+Second, our tool, goSAT, is publicly available while XSat is not public.
+Third, with <em><span class="caps">BH</span> solver</em> we provide an open re-implementation of XSat with the same optimization parameters,
+as provided to us by the XSat authors.
+Fourth, goSAT is more portable compared to XSat since it uses CTypes for <span class="caps">FFI</span> instead of C extensions for Python.
+Despite this, solving time of both tools is still comparable.
+Fifth, we highlighted equations (9-11) which were overlooked in XSat despite being necessary for proving soundness.
+Sixth, based on Figure 2, we made the observation that the regularity of generated functions is essential
+to making goSAT work in practice.
+Finally, XSat requires a manual setup to get working.
+In contrast, goSAT is an integrated tool featuring <span class="caps">JIT</span> compilation of <span class="caps">SMT</span> formulas.
+To our knowledge, we are the first to implement this in the context of <span class="caps">SMT</span> solving.</td>
+</tr>
+<tr class="field"><th class="field-name">Q:</th><td class="field-body"><em><span class="caps">BH</span> and <span class="caps">NL</span> solvers only work if given a compiled shared library as &#8220;input&#8221;.
+One would typically expect an <span class="caps">SMT</span> formula to be given as input instead?</em></td>
+</tr>
+<tr class="field"><th class="field-name">A:</th><td class="field-body">In code generation mode, goSAT generates C code (like XSat) that corresponds
+to the given input formula(s). This code needs
+to be compiled and given as input to <span class="caps">BH</span> or <span class="caps">NL</span> solvers. Additionally, goSAT can
+solve <span class="caps">SMT</span> formulas directly. This is an extension over XSat and a key contribution.</td>
+</tr>
+<tr class="field"><th class="field-name">Q:</th><td class="field-body"><em>Can goSAT provide stable results after multiple runs on the same formula?</em></td>
+</tr>
+<tr class="field"><th class="field-name">A:</th><td class="field-body">With stochastic search, a certain degree of instability is unavoidable.
+In our experiments, however, we experienced stable results with the majority
+of input formulas. For example, applying <code>CRS2</code> algorithm to the 214 instances in the griggio benchmarks,
+we found only two instances, namely, <code>sqrt_c_2</code> and <code>sqrt_c_5</code>, to
+lead to what can be considered unstable results.</td>
+</tr>
+</tbody>
+</table>
+<p><span class="raw-html"><hr/></span></p>
+<!-- comment rubric:: References -->
+<table class="docutils citation" frame="void" id="pldi14" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[<span class="caps">PLDI14</span>]</td><td><tt class="docutils literal">V.</tt> Le, M. Afshari, and Z. Su, “Compiler validation via equivalence modulo inputs,” in Proceedings of the 35th Conference on Programming Languages Design and Implementation (<span class="caps">PLDI</span>’14), 2014, pp. 216–226.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="pldi11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[<span class="caps">PLDI11</span>]</td><td><tt class="docutils literal">X.</tt> Yang, Y. Chen, E. Eide, and J. Regehr, “Finding and understanding bugs in C compilers,” in Proceedings of the 32nd conference on Programming language design and implementation (<span class="caps">PLDI</span>’11), 2011, pp. 283–294.</td></tr>
+</tbody>
+</table>
+</div>
+<script type='text/javascript'>if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2017 Ammar Ben Khadra
+            <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> -->         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.formallyapplied.com/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.formallyapplied.com/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.formallyapplied.com/theme/js/respond.min.js"></script>
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-58845389-3']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>

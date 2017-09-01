@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Formally Applied - misc</title><link href="https://blog.formallyapplied.com/" rel="alternate"></link><link href="https://blog.formallyapplied.com/feeds/misc.atom.xml" rel="self"></link><id>https://blog.formallyapplied.com/</id><updated>2017-05-10T18:40:00+02:00</updated><entry><title>Floating-point satisfiability as global optimization</title><link href="https://blog.formallyapplied.com/2017/05/gosat-faq/" rel="alternate"></link><published>2017-05-10T10:20:00+02:00</published><updated>2017-05-10T10:20:00+02:00</updated><author><name>Ammar Ben Khadra</name></author><id>tag:blog.formallyapplied.com,2017-05-10:/2017/05/gosat-faq/</id><summary type="html">&lt;p class="first last"&gt;Solving &lt;span class="caps"&gt;SMT&lt;/span&gt; formulas involving the theory of floating-pointing arithmetic (&lt;span class="caps"&gt;FPA&lt;/span&gt;)
+can be encountered in several domains including symbolic execution and program synthesis.
+Unfortunately, &lt;span class="caps"&gt;SMT&lt;/span&gt; solvers which support &lt;span class="caps"&gt;FPA&lt;/span&gt; often struggle
+trying to satisfy&amp;nbsp;&amp;#8230;&lt;/p&gt;
+</summary><content type="html">&lt;p&gt;Solving &lt;span class="caps"&gt;SMT&lt;/span&gt; formulas involving the theory of floating-pointing arithmetic (&lt;span class="caps"&gt;FPA&lt;/span&gt;)
+can be required in several domains including symbolic execution, test generation,
+and program synthesis. Unfortunately, &lt;span class="caps"&gt;SMT&lt;/span&gt; solvers often struggle
+trying to satisfy given &lt;span class="caps"&gt;FPA&lt;/span&gt; queries. Additionally, commonly used non-linear functions,
+e.g. trigonometric, remain unsupported.
+This leaves tool developers with limited options like employing uninterpreted functions
+which can be tricky or work around the issue by ignoring &lt;span class="caps"&gt;FPA&lt;/span&gt;&amp;nbsp;altogether.&lt;/p&gt;
+&lt;p&gt;Recently, I&amp;#8217;ve been exploring &lt;a class="reference external" href="https://en.wikipedia.org/wiki/Global_optimization"&gt;global optimization&lt;/a&gt;
+as an alternative option for tackling this problem. This approach is unconventional
+in the sense that it departs away from the known and trusted &lt;span class="caps"&gt;DPLL&lt;/span&gt;(T) framework.
+This work is based on the ideas published in the &lt;a class="reference external" href="http://dx.doi.org/10.1007/978-3-319-41540-6_11"&gt;XSat&lt;/a&gt;
+paper by Fu et al. (&lt;span class="caps"&gt;CAV&lt;/span&gt;&amp;#8216;16). Our results are discussed in this &lt;a class="reference external" href="/docs/gosat.pdf"&gt;report&lt;/a&gt;.
+This work is implemented in the &lt;span class="caps"&gt;SMT&lt;/span&gt; solver &lt;em&gt;goSAT&lt;/em&gt; which is publicly &lt;a class="reference external" href="https://github.com/abenkhadra/gosat"&gt;available&lt;/a&gt;.
+We provide in the following an appendix to our report in Q&amp;amp;A format.
+I find this format particularly useful for providing quick takeaways
+to interested readers.
+Additionally, it can help in clearing possible&amp;nbsp;misunderstandings.&lt;/p&gt;
+&lt;div class="section" id="appendix"&gt;
+&lt;h2&gt;Appendix&lt;/h2&gt;
+&lt;blockquote class="pull-quote"&gt;
+&lt;strong&gt;Note&lt;/strong&gt;. This appendix was edited in collaboration with Dominik Stoffel and Wolfgang Kunz.
+Errors and omissions are mine.&lt;/blockquote&gt;
+&lt;table class="docutils field-list" frame="void" rules="none"&gt;
+&lt;col class="field-name" /&gt;
+&lt;col class="field-body" /&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;Q:&lt;/th&gt;&lt;td class="field-body"&gt;&lt;em&gt;Evaluations results demonstrate that MathSat still compares favorably in terms of &lt;span class="caps"&gt;SAT&lt;/span&gt; instances solved.
+Why do we need exploring alternatives to conventional solvers?&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;A:&lt;/th&gt;&lt;td class="field-body"&gt;Our experimental evaluation considered only one set of &lt;span class="caps"&gt;FPA&lt;/span&gt; benchmarks.
+Hence, it&amp;#8217;s still early to draw general conclusions.
+Actually, our main target was assessing the potential of different &lt;span class="caps"&gt;GO&lt;/span&gt;
+algorithms rather than comparing with MathSAT. Also, the merit of goSAT
+is that it can, in principle, reason about any executable function, e.g., trigonometric
+functions, which is not possible in MathSat. Further, extending MathSat to
+Optimization-Modulo-Theory (&lt;span class="caps"&gt;OMT&lt;/span&gt;) over &lt;span class="caps"&gt;FPA&lt;/span&gt; will require implementing &lt;span class="caps"&gt;GO&lt;/span&gt; algorithms
+similar to the ones we discussed. Finally, goSAT has a significant advantage in
+terms of query time and used memory despite the fact that it&amp;#8217;s still at an early stage.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;Q:&lt;/th&gt;&lt;td class="field-body"&gt;&lt;em&gt;Wouldn&amp;#8217;t compiler optimizations affect the soundness of the results?&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;A:&lt;/th&gt;&lt;td class="field-body"&gt;goSAT emits a restricted &lt;span class="caps"&gt;IR&lt;/span&gt; subset that doesn&amp;#8217;t have common features
+like loops and heap allocations. Also, compiler optimizations are restricted to only one
+function representing &lt;span class="math"&gt;\(\mathcal{G}(\vec{x})\)&lt;/span&gt;, i.e. intra-procedural optimizations only.
+Works on compiler validation e.g. &lt;span class="caps"&gt;EMI&lt;/span&gt; &lt;a class="citation-reference" href="#pldi14" id="id1"&gt;[&lt;span class="caps"&gt;PLDI14&lt;/span&gt;]&lt;/a&gt; and CSmith &lt;a class="citation-reference" href="#pldi11" id="id2"&gt;[&lt;span class="caps"&gt;PLDI11&lt;/span&gt;]&lt;/a&gt;, demonstrate that
+compiler &lt;em&gt;miscompilation&lt;/em&gt; bugs generally require code with more complex features.
+Additionally, goSAT is incomplete when stochastic &lt;span class="caps"&gt;GO&lt;/span&gt; algorithms are applied.
+However, it is sound w.r.t. &lt;span class="caps"&gt;SAT&lt;/span&gt; results.
+&lt;span class="caps"&gt;SAT&lt;/span&gt; results are easy to validate externally using a simple evaluation.
+We implemented this feature in goSAT and, so far, did not encounter invalid results.
+Consequently, we do not consider potential compiler bugs to be a serious drawback.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;Q:&lt;/th&gt;&lt;td class="field-body"&gt;&lt;em&gt;What are the contributions of goSAT over XSat?&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;A:&lt;/th&gt;&lt;td class="field-body"&gt;We provide several contributions over XSat.
+First, XSat discussed one stochastic &lt;span class="caps"&gt;GO&lt;/span&gt; algorithm (&lt;span class="caps"&gt;MCMC&lt;/span&gt; sampling) and used Scipy as backend
+in the experimentation. Scipy supports only one &lt;span class="caps"&gt;GO&lt;/span&gt; algorithm, namely, Basin Hopping.
+In comparison, we provide a design-space exploration of different algorithms and backends, e.g., NLopt and IpOpt.
+We evaluated four stochastic algorithms and one deterministic algorithm.
+Second, our tool, goSAT, is publicly available while XSat is not public.
+Third, with &lt;em&gt;&lt;span class="caps"&gt;BH&lt;/span&gt; solver&lt;/em&gt; we provide an open re-implementation of XSat with the same optimization parameters,
+as provided to us by the XSat authors.
+Fourth, goSAT is more portable compared to XSat since it uses CTypes for &lt;span class="caps"&gt;FFI&lt;/span&gt; instead of C extensions for Python.
+Despite this, solving time of both tools is still comparable.
+Fifth, we highlighted equations (9-11) which were overlooked in XSat despite being necessary for proving soundness.
+Sixth, based on Figure 2, we made the observation that the regularity of generated functions is essential
+to making goSAT work in practice.
+Finally, XSat requires a manual setup to get working.
+In contrast, goSAT is an integrated tool featuring &lt;span class="caps"&gt;JIT&lt;/span&gt; compilation of &lt;span class="caps"&gt;SMT&lt;/span&gt; formulas.
+To our knowledge, we are the first to implement this in the context of &lt;span class="caps"&gt;SMT&lt;/span&gt; solving.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;Q:&lt;/th&gt;&lt;td class="field-body"&gt;&lt;em&gt;&lt;span class="caps"&gt;BH&lt;/span&gt; and &lt;span class="caps"&gt;NL&lt;/span&gt; solvers only work if given a compiled shared library as &amp;#8220;input&amp;#8221;.
+One would typically expect an &lt;span class="caps"&gt;SMT&lt;/span&gt; formula to be given as input instead?&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;A:&lt;/th&gt;&lt;td class="field-body"&gt;In code generation mode, goSAT generates C code (like XSat) that corresponds
+to the given input formula(s). This code needs
+to be compiled and given as input to &lt;span class="caps"&gt;BH&lt;/span&gt; or &lt;span class="caps"&gt;NL&lt;/span&gt; solvers. Additionally, goSAT can
+solve &lt;span class="caps"&gt;SMT&lt;/span&gt; formulas directly. This is an extension over XSat and a key contribution.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;Q:&lt;/th&gt;&lt;td class="field-body"&gt;&lt;em&gt;Can goSAT provide stable results after multiple runs on the same formula?&lt;/em&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class="field"&gt;&lt;th class="field-name"&gt;A:&lt;/th&gt;&lt;td class="field-body"&gt;With stochastic search, a certain degree of instability is unavoidable.
+In our experiments, however, we experienced stable results with the majority
+of input formulas. For example, applying &lt;code&gt;CRS2&lt;/code&gt; algorithm to the 214 instances in the griggio benchmarks,
+we found only two instances, namely, &lt;code&gt;sqrt_c_2&lt;/code&gt; and &lt;code&gt;sqrt_c_5&lt;/code&gt;, to
+lead to what can be considered unstable results.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;span class="raw-html"&gt;&lt;hr/&gt;&lt;/span&gt;&lt;/p&gt;
+&lt;!-- comment rubric:: References --&gt;
+&lt;table class="docutils citation" frame="void" id="pldi14" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;[&lt;span class="caps"&gt;PLDI14&lt;/span&gt;]&lt;/td&gt;&lt;td&gt;&lt;tt class="docutils literal"&gt;V.&lt;/tt&gt; Le, M. Afshari, and Z. Su, “Compiler validation via equivalence modulo inputs,” in Proceedings of the 35th Conference on Programming Languages Design and Implementation (&lt;span class="caps"&gt;PLDI&lt;/span&gt;’14), 2014, pp. 216–226.&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;table class="docutils citation" frame="void" id="pldi11" rules="none"&gt;
+&lt;colgroup&gt;&lt;col class="label" /&gt;&lt;col /&gt;&lt;/colgroup&gt;
+&lt;tbody valign="top"&gt;
+&lt;tr&gt;&lt;td class="label"&gt;[&lt;span class="caps"&gt;PLDI11&lt;/span&gt;]&lt;/td&gt;&lt;td&gt;&lt;tt class="docutils literal"&gt;X.&lt;/tt&gt; Yang, Y. Chen, E. Eide, and J. Regehr, “Finding and understanding bugs in C compilers,” in Proceedings of the 32nd conference on Programming language design and implementation (&lt;span class="caps"&gt;PLDI&lt;/span&gt;’11), 2011, pp. 283–294.&lt;/td&gt;&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;script type='text/javascript'&gt;if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width &lt; 768) ? "left" : align;
+        indent = (screen.width &lt; 768) ? "0em" : indent;
+        linebreak = (screen.width &lt; 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+&lt;/script&gt;</content><category term="smt"></category><category term="floating-point"></category></entry><entry><title>Building this blog</title><link href="https://blog.formallyapplied.com/2017/05/building-this-blog/" rel="alternate"></link><published>2017-05-04T10:20:00+02:00</published><updated>2017-05-10T18:40:00+02:00</updated><author><name>Ammar Ben Khadra</name></author><id>tag:blog.formallyapplied.com,2017-05-04:/2017/05/building-this-blog/</id><summary type="html">&lt;p class="first last"&gt;Details about the tools and services used in building this blog. Also, some discussion
+about the design rationale behind&amp;nbsp;it.&lt;/p&gt;
+</summary><content type="html">&lt;div class="section" id="in-a-nutshell"&gt;
+&lt;h2&gt;In a&amp;nbsp;nutshell&lt;/h2&gt;
+&lt;p&gt;This blog is powered by &lt;a class="reference external" href="https://blog.getpelican.com/"&gt;Pelican&lt;/a&gt; using
+&lt;a class="reference external" href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3"&gt;pelican-bootstrap3&lt;/a&gt;
+theme. It&amp;#8217;s hosted on &lt;a class="reference external" href="https://pages.github.com/"&gt;Github Pages&lt;/a&gt;.  Content distribution
+and &lt;span class="caps"&gt;TLS&lt;/span&gt; encryption are powered by &lt;a class="reference external" href="https://www.cloudflare.com"&gt;CloudFlare&lt;/a&gt;.
+In terms of cost, I had to pay only for the domain name registration.
+A template of this blog is provided &lt;a class="reference external" href="https://github.com/abenkhadra/formallyapplied.template"&gt;here&lt;/a&gt;.
+Basically, you only need to &lt;a class="reference external" href="http://docs.getpelican.com/en/3.7.1/install.html"&gt;install pelican&lt;/a&gt;
+and you should be able of getting the template up and running in a matter of&amp;nbsp;minutes.&lt;/p&gt;
+&lt;/div&gt;
+&lt;div class="section" id="design-options"&gt;
+&lt;h2&gt;Design&amp;nbsp;options&lt;/h2&gt;
+&lt;p&gt;If you are interested in the alternative options considered when building this
+blog then please read&amp;nbsp;on.&lt;/p&gt;
+&lt;ul class="simple"&gt;
+&lt;li&gt;&lt;strong&gt;Static or dynamic blog&lt;/strong&gt;. This decision effectively means choosing between
+&lt;a class="reference external" href="https://www.wordpress.com"&gt;Wordpress&lt;/a&gt; and a Static Site Generator (&lt;span class="caps"&gt;SSG&lt;/span&gt;). I won&amp;#8217;t
+delve into a detailed comparison here. Quick googling should give you a sufficient idea.
+Bottom line is that if you have a limited set of requirements - similar to my case -
+then I recommend going for a static website.
+Basically, it allows you to focus on your content and largely forget about
+issues related to maintenance, security, and&amp;nbsp;performance.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Choosing an &lt;span class="caps"&gt;SSG&lt;/span&gt;&lt;/strong&gt;. There are plenty of SSGs around on &lt;a class="reference external" href="https://www.staticgen.com"&gt;staticgen&lt;/a&gt;.
+What ended up on my shortlist are Jekyll, Hugo, and Pelican. Jekyll is unquestionably
+the most popular and is the one endorsed by GitHub. Also,
+I read some nice things about Hugo particularly regarding its speed. However, I haven&amp;#8217;t
+tried any of them, to be honest, and went directly for Pelican due to these reasons;
+First, it is written in Python. I&amp;#8217;m learning Python already and this helps
+me have more consolidation around its ecosystem. Second, Pelican comes with native
+support for restructuredText which has several
+&lt;a class="reference external" href="http://eli.thegreenplace.net/2017/restructuredtext-vs-markdown-for-technical-documentation/"&gt;advantages&lt;/a&gt;
+over&amp;nbsp;Markdown.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Blog theme&lt;/strong&gt;. Fortunately, Pelican has a lot of &lt;a class="reference external" href="http://www.pelicanthemes.com/"&gt;themes&lt;/a&gt;
+to choose from. I ended up choosing &lt;em&gt;pelican-bootstrap3&lt;/em&gt;. This theme supports
+Booststrap (that is easy to guess!) and its corresponding &lt;a class="reference external" href="https://bootswatch.com/"&gt;bootswatch&lt;/a&gt; themes.
+Then, I customized my own bootswatch sub-theme which is named &amp;#8220;formally&amp;#8221; based on the Sandstone sub-theme.
+In this regard, I tried to follow some rules like the ones found
+&lt;a class="reference external" href="https://spark.adobe.com/blog/2017/01/30/13-rules-to-help-you-stop-making-bad-font-choices/"&gt;here&lt;/a&gt;
+and &lt;a class="reference external" href="https://designschool.canva.com/blog/design-rules//"&gt;here&lt;/a&gt;.
+These rules seem to summarize sensible&amp;nbsp;wisdom.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Finally, in order to apply your own customization to the provided template,
+consider using &lt;a class="reference external" href="https://developers.google.com/web/tools/setup/setup-workflow"&gt;Map to Network Resource&lt;/a&gt;
+which is a feature available in Chrome. This feature helps
+you iterate quickly and thus saves you a lot of time in the&amp;nbsp;process&lt;/p&gt;
+&lt;/div&gt;
+</content><category term="blogging"></category></entry></feed>
