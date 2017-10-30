@@ -54,8 +54,8 @@
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
-                    <li><a href="/pages/about/">About</a></li>
-                    <li><a href="/archives.html">Archives</a></li>
+                    <li><a href="/pages/about/"><i class="fa fa-question-circle" aria-hidden="true"> </i> About</a></li>
+                    <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"> </i> Archives</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
             </ul>
@@ -106,6 +106,21 @@ how much performance improvement can be gained. Surprisingly, the program segfau
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
 <script src="https://blog.formallyapplied.com/theme/js/respond.min.js"></script>
 
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'formallyapplied'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
     <!-- Google Analytics -->
     <script type="text/javascript">
 

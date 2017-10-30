@@ -138,7 +138,8 @@ figure.floatcenter, .align-center {
 
 .highlighttable {
     /* Adds them margin-bottom to highlightable instead of <pre> */
-    margin-bottom: 11px;
+    margin-bottom: 1.6em;
+    margin-top: 1em;
 }
 
 .highlighttable {
