@@ -95,8 +95,10 @@ a, a:hover {
 }
 
 .entry-content figcaption, .caption {
-    font-size: small;
-    margin-bottom: 2px;
+    font-size: smaller;
+    font-family: Roboto, sans-serif;
+    color: #666;
+    text-align: left;
 }
 
 .summary img {
