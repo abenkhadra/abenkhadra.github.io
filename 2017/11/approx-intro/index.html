@@ -56,7 +56,7 @@
                 <span class="icon-bar"></span>
             </button>
             <a href="https://blog.formallyapplied.com/" class="navbar-brand">
-<img class="img-responsive pull-left gap-right" src="https://blog.formallyapplied.com/images/logo.png" width="28"/> Formally Applied            </a>
+<img class="img-responsive pull-left gap-right" src="https://blog.formallyapplied.com/images/logo.svg" width="30"/> Formally Applied            </a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
@@ -105,28 +105,32 @@
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>Approximate Computing (<span class="caps">AC</span>) is a wide spectrum of techniques that relax
+                <blockquote class="pull-quote">
+Update on 15 Nov 2017. General text improvements.</blockquote>
+<p>Approximate Computing (<span class="caps">AC</span>) is a wide spectrum of techniques that relax
 the accuracy of computation in order to improve performance, energy, and/or another
 metric of merit.
 <span class="caps">AC</span> exploits the fact that several important applications,
 like machine learning and multimedia processing, do not require precise results to be&nbsp;useful.</p>
-<p>For instance, we can use a lower resolution (approximate) image encoder
+<p>For instance, we can use a lower resolution image encoder
 in applications where high-quality images are not necessary.
-In a large-scale data center, this may lead to enormous savings in
+In a data center, this may lead to large savings in
 the amount of required processing, storage, and communication&nbsp;bandwidth.</p>
 <p>Research interest in <span class="caps">AC</span> has been growing in recent years.
 I refer here to two recent surveys <a class="footnote-reference" href="#id17" id="id1">[1]</a> <a class="footnote-reference" href="#id18" id="id2">[2]</a> for a comprehensive treatment.
-In this article, I&#8217;ll try to provide an introduction to this research field.
-Key concepts will be overviewed based on a proposed taxonomy.
-I further elaborate on nondeterministic <span class="caps">AC</span>, an <span class="caps">AC</span> category with unique opportunities as well as&nbsp;challenges.</p>
+In this article, I&#8217;ll try to provide an introduction to this research&nbsp;field.</p>
+<p>Basically, my discussion starts from the absolute beginning by motivating
+<span class="caps">AC</span> and discussing its research scope.
+Then, I discuss key concepts based on a proposed taxonomy.
+Finally, I further elaborate on nondeterministic <span class="caps">AC</span>, an <span class="caps">AC</span> category with unique opportunities as well as&nbsp;challenges.</p>
 <p>Graduate students will, hopefully, find this introduction useful
 to catch up with recent&nbsp;developments.</p>
-<p>Note that my research activity in <span class="caps">AC</span> is rather limited. I participated with a poster
-in the approximate computing workshop. The workshop was a satellite event to <a class="reference external" href="http://esweek.org/"><span class="caps">ESWEEK</span>&#8216;16</a>.
-Our extended  <a class="reference external" href="/docs/approx16.pdf">abstract</a> highlights some <span class="caps">AC</span> challenges and opportunities in general.
+<p>Note that some of the ideas discussed here are based on a poster I presented at an <span class="caps">AC</span> workshop.
+The workshop was a satellite event to <a class="reference external" href="http://esweek.org/"><span class="caps">ESWEEK</span>&#8216;16</a>.
+Our extended  <a class="reference external" href="/docs/approx16.pdf">abstract</a> highlighted some <span class="caps">AC</span> challenges and opportunities in general.
 There, we argued that nondeterministic <span class="caps">AC</span> faces a fundamental
 control-flow <em>wall</em> which is bad news! The good news, however, is that there are
-still large opportunities in deterministic <span class="caps">AC</span> to keep practitioners busy for the foreseeable&nbsp;future.</p>
+still enough opportunities in deterministic <span class="caps">AC</span> to keep practitioners busy for the foreseeable&nbsp;future.</p>
 <p>I shall elaborate on those issues and more in the&nbsp;following.</p>
 <div class="section" id="motivation">
 <h2>Motivation</h2>
@@ -180,7 +184,7 @@ More performance and power saving opportunities can be harnessed by moving to be
 We move now to our second question; What is approximate computing in the first&nbsp;place?</p>
 <p>Let&#8217;s come back to our image encoding example. We know that applying any lossy compression
 algorithm (<span class="caps">JPEG</span> for example) to a raw image will result in an approximate image.
-Such compression often comes with little human perceptible loss in image quality.
+Such compression often comes (by design) with little human perceptible loss in image quality.
 Also, image encoders usually have tunable algorithmic <em>knobs</em>, like compression level,
 to trade off image size with its&nbsp;quality.</p>
 <p>Therefore, do not we already know how to do <span class="caps">AC</span> on images?
@@ -213,20 +217,20 @@ You might also go all the way down to the nitty-gritty details of improving cach
 &#8216;stealing&#8217; unused bits in some data structures for other&nbsp;purposes.</p>
 <p>This profile/optimize cycle continues until you either meet your performance target
 or you think that you have reached the point of diminishing returns.
-This optimization process is generally applicable to virtually any computing system.
+This optimization process is generally applicable to any computing system.
 However, with a system that can tolerate <em>controllable</em> deviations from its original outputs,
 you can go a bit further in your&nbsp;optimization.</p>
 <p>Basically, <span class="caps">AC</span> is about this last mile in optimization.
 The research goal is to investigate <strong>automatic</strong>, <strong>principled</strong>, and ideally <strong>generic</strong> techniques
 to gain more efficiency by relaxing the exactness of outputs.
-The need for automation is obvious since a manual approximation technique can be simply regarded as &#8216;business as usual&#8217;
+The need for automation is obvious since manual approximation techniques can simply be regarded as &#8216;business as usual&#8217;
 i.e., without clear improvement over the state of&nbsp;practice.</p>
-<p>Also, <span class="caps">AC</span> needs to provide guarantees, in a principled way, that expected output errors
+<p>Furthermore, <span class="caps">AC</span> needs to guarantee, in a principled way, that the expected output errors
 will remain &#8216;acceptable&#8217; in the field.
 That is, computing systems already struggle with implementation bugs. Therefore, it&#8217;s difficult to adopt
 an <span class="caps">AC</span> technique that can introduce more bugs in the form of arbitrary&nbsp;outputs.</p>
 <p>We come to the third criterion which is generality.
-I consider a technique to be generic if it applies to a wide spectrum of domains of interest to <span class="caps">AC</span>.
+I consider a technique to be generic if it is applicable to a wide spectrum of domains of interest to <span class="caps">AC</span>.
 For example, loop invariant <a class="reference external" href="https://en.wikipedia.org/wiki/Loop-invariant_code_motion">code motion</a>
 is a generic compiler optimization that applies to virtually any program from scientific simulations
 to <a class="reference external" href="https://en.wikipedia.org/wiki/High-level_synthesis">high-level synthesis</a>.</p>
@@ -240,9 +244,9 @@ This can be achieved by embedding domain-specific knowledge in the <span class="
 This seems to be a reasonable thing to do given the diversity of domains where <span class="caps">AC</span> is&nbsp;applicable.</p>
 <p>A prime advantage of compromising on generality is that end users won&#8217;t need to explicitly
 provide error quality specification, see Figure (1).
-Therefore, metrics of acceptable errors will be based on the specific domain.
-For instance, <a class="reference external" href="https://en.wikipedia.org/wiki/Generalization_error">generalization error</a> for machine learning and
-<a class="reference external" href="https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio"><span class="caps">PSNR</span></a> for image&nbsp;compression.</p>
+Metrics of acceptable errors will be based on the specific domain.
+For instance, <a class="reference external" href="https://en.wikipedia.org/wiki/Generalization_error">generalization error</a> in machine learning and
+<a class="reference external" href="https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio"><span class="caps">PSNR</span></a> in image&nbsp;compression.</p>
 </div>
 <div class="section" id="a-taxonomy-of-approximate-computing">
 <h2>A taxonomy of approximate&nbsp;computing</h2>
@@ -264,15 +268,15 @@ rises as we move away from the&nbsp;center.</p>
 the algorithm level is at the bottom? The reason is simply the expected <em>cost</em> of targeting
 such a design point. In other words, I expect the implementation cost to increase
 as one explores design points further away from the&nbsp;center.</p>
-<p>Nevertheless, a system that involves dynamic run-time adaption, e.g., for error quality monitoring,
+<p>For instance, a system that involves dynamic run-time adaption, e.g., for error quality monitoring,
 is more complex, and thus more costly, to build and maintain compared to a static system.
-However, the former might provide sufficient benefits to amortize the higher cost if designed with&nbsp;care.</p>
+However, run-time adaptation might provide sufficient benefits to amortize the higher cost if designed with&nbsp;care.</p>
 <p>Now, we move to the determinism axis.
-My classification is based on the usual <a class="reference external" href="https://en.wikipedia.org/wiki/Nondeterministic_algorithm">determinism</a> property
-with a twist related to control-flow behavior and bug reproducibility.
-That is, an algorithm that returns the same output repeatedly given the same input is&nbsp;deterministic.</p>
-<p>However, I extend the considered scope of determinism to cover algorithms which are based on randomness like simulated annealing.
-The reason is that it&#8217;s relatively easy to reproduce bugs in their implementation with repeated runs.
+My classification is based on the usual <a class="reference external" href="https://en.wikipedia.org/wiki/Nondeterministic_algorithm">determinism</a> property.
+That is, an algorithm that returns the same output repeatedly given the same input is <em>deterministic</em>.
+Nondeterministic algorithms do not exhibit such output&nbsp;repeatability.</p>
+<p>I further classify nondeterministic algorithms to <em>partially</em> and <em>fully</em> nondeterministic.
+These categories are based on the sources of nondeterminism in the algorithm and bug reproducibility.
 Nondeterministic <span class="caps">AC</span> will be discussed in more detail in the next&nbsp;section.</p>
 <p>The axis of approximation level in Figure (2) has been (roughly) divided into 4 categories.
 At algorithm level, a given algorithm is kept intact.
@@ -306,14 +310,13 @@ the time as expected. However, they can occasionally produce arbitrary&nbsp;outp
 <p>The approximate circuits previously discussed are mostly designed manually for their specific purpose.
 In contrast, the authors of <span class="caps">SALSA</span> <a class="footnote-reference" href="#id25" id="id9">[9]</a> approach hardware approximation from a different angle.
 They propose a general technique to <em>automatically</em> synthesize approximate circuits given golden <span class="caps">RTL</span> model and quality&nbsp;specifications.</p>
-<p>I conclude by discussing how cost is expected to increase as we go from algorithm level to circuit level.
-Given a (correct) algorithm that exposes some configurable knobs.
-Adapting this algorithm to different settings is relatively cheap.
-Also, it can be highly automated based on established meta-optimization literature
-as can be found in&nbsp;meta-learning.</p>
-<p>However, things get more challenging If we were to approximate outputs based on the internal workings of an algorithm.
-This application level approximation may require asking users for annotations and assumptions on expected inputs.
-Basically, this level offers a smaller opportunity for automation and more difficulty in guaranteeing error&nbsp;quality.</p>
+<p>I conclude this section by discussing how cost is expected to increase as we go from algorithm level to circuit
+level. Given a (correct) algorithm that exposes some configurable knobs. Adapting such algorithm
+to different settings is relatively cheap. Also, it can be highly automated based on established meta-
+optimization literature as can be found in&nbsp;meta-learning.</p>
+<p>However, things get more challenging if we were to approximate outputs based on the internal workings of an algorithm.
+Generally, this application level approximation requires asking users for annotations or assumptions on expected inputs.
+Consequently, there is a smaller opportunity for automation and more difficulty in guaranteeing error&nbsp;quality.</p>
 <p>The expected cost gets even higher at architecture level were several stakeholders might be affected.
 Compiler engineers, operating systems developers, and hardware architects all need to be either
 directly involved or at least aware of the approximation intended by the original algorithm developers.
@@ -322,55 +325,65 @@ people to get&nbsp;involved.</p>
 </div>
 <div class="section" id="on-nondeterministic-approximate-computing">
 <h2>On nondeterministic approximate&nbsp;computing</h2>
-<p>Let&#8217;s begin this section with a definition.
-We consider an <span class="caps">AC</span> technique to be nondeterministic if it modifies a given algorithm such that
-its <em>behavior</em> can be different for the same input.
-This means that the followed control-flow path can differ in &#8216;unexpected&#8217;&nbsp;ways.</p>
-<p>Nondeterminism can be introduced in several ways.
+<p>Let&#8217;s begin this section with a definition;
+An algorithm is considered to be nondeterministic if its output can be different for the same input.
+In a partially nondeterministic algorithm, nondeterminism sources can be feasibly accounted for a priori.
+Otherwise, the algorithm is considered fully&nbsp;nondeterministic.</p>
+<p>Simulated annealing is an example of a partially nondeterministic algorithm where
+picking the next step is based on a random choice.
+Despite this, its control-flow behavior remain predictable which makes it relatively
+easy to reproduce implementation bugs with repeated runs.
+In contrast, the followed control-flow path can differ in &#8216;unexpected&#8217; ways
+in the case of fully nondeterministic&nbsp;algorithms.</p>
+<p>A nondeterministic <span class="caps">AC</span> technique introduces (or increases) nondeterminism in a given
+algorithm. This can be realized in several ways.
 In ApproxHadoop, the authors proposed random task dropping to gain more efficiency. Also, authors of <span class="caps">SAGE</span> <a class="footnote-reference" href="#id26" id="id10">[10]</a>
 proposed skipping atomic primitives to gain performance at the expense of
 exposing the algorithm to race&nbsp;conditions.</p>
 <p>Nondeterministic <span class="caps">AC</span> introduced by unreliable hardware has
 received special attention from the research community. This is motivated
 by the potential efficiency gains discussed already.
-I&#8217;ll focus on hardware-based nondeterministic <span class="caps">AC</span> in the&nbsp;following.</p>
-<p>I being with some examples, <span class="caps">DRAM</span> cells need a periodic refresh to retain their data which consumes energy.
+I&#8217;ll focus in the following on nondeterministic <span class="caps">AC</span> that is realized by unreliable hardware.
+Note that an algorithm is, typically, fully nondeterministic in this&nbsp;case.</p>
+<p>There several possibilities to implement hardware-based nondeterministic <span class="caps">AC</span>.
+<span class="caps">DRAM</span> cells need a periodic refresh to retain their data which consumes energy.
 Equipping DRAMs with &#8216;selective&#8217; no-refresh mechanisms saves energy but risks occasional bit&nbsp;errors.</p>
 <p>Similarly, dynamically adapting bus compression and error detection mechanisms can provide  significant
 gains in the communication between main memory and processing&nbsp;cores.</p>
-<p>Last but not least, there are efficiency opportunities in allowing processing cores
+<p>Additionally, there are efficiency opportunities in allowing processing cores
 themselves to provide a best-effort rather than a reliable service.
 In this setting, hardware engineers may <em>optimistically</em> invest in reliability&nbsp;mechanisms.</p>
-<p>However, software programmers need in turn to be aware of hardware unreliability and
+<p>However, software programmers need, in turn, to be aware of hardware unreliability and
 invest in fault management schemes suitable for their particular needs.
 Relax <a class="footnote-reference" href="#id27" id="id11">[11]</a> provide a good example of such an&nbsp;arrangement.</p>
 <p>Also, <span class="caps">CLEAR</span> <a class="footnote-reference" href="#id28" id="id12">[12]</a> provides an interesting design-space exploration
 of reliability against soft-errors across the entire system&nbsp;stack.</p>
 <p>Despite the extensive research in reliability in general and more recently
-in <span class="caps">AC</span>. The problem of running software reliably and efficiently
+in <span class="caps">AC</span>. The problem of running software <em>reliably</em> and <em>efficiently</em>
 on unreliable hardware is far from solved.
-Besides the cost mentioned in the previous section.
-There are still major interdisciplinary problems to be&nbsp;addressed.</p>
+Beside the cost factor mentioned in the previous section,
+there are still major interdisciplinary problems to be&nbsp;addressed.</p>
 <p>First, there is the abstraction problem of the hardware/software interface.
 Extending the <span class="caps">ISA</span> abstraction makes sense given its ubiquity.
 For example, each <span class="caps">ISA</span> instruction might be extended with probability specification.
 This probability quantifies how many times this nondeterministic instruction is expected to
 supply correct results (I&#8217;m becoming frequentist&nbsp;here).</p>
 <p>However, microchip designs nowadays are complex possibly comprising tens of <span class="caps">IP</span> modules
-from several <span class="caps">IP</span> provider. It&#8217;s difficult for a microchip manufacturer to derive such
+from several <span class="caps">IP</span> providers. It&#8217;s difficult for a microchip manufacturer to derive such
 probabilities per individual instruction.
 Even where such derivation is possible,
 microchip manufacturers would be reluctant to guarantee such probabilities
-to their&nbsp;customers.</p>
+to their customers. Maintaining such guarantees through the entire product lifetime
+would prove&nbsp;costly.</p>
 <p>Further, I think that it&#8217;s still not clear how much value can this instruction-level abstraction
 provide to hardware as well as software engineers.
-Consequently, the question of suitable abstractions between software and nondeterministic hardware is still&nbsp;open.</p>
-<p>Second, there is the correctness problem.
+Consequently, the question of finding suitable and generic abstractions between software and unreliable hardware is still&nbsp;open.</p>
+<p>Second, there is the correctness challenge.
 Can we establish that a software running on nondeterministic hardware is correct
 or maybe <a class="reference external" href="https://www.cs.cornell.edu/~asampson/blog/probablycorrect.html">probably correct</a>?
 A short answer is probably&nbsp;no!</p>
-<p>There are several reasons for this correctness problem.
-Statistical correctness requires sampling from (joint) probability distributions over inputs
+<p>There are several reasons for this correctness challenge.
+Statistical correctness requires sampling from (joint) probability distributions of inputs
 which are typically not available a priori.
 Also, software functions are generally noncontinuous and nonlinear in the mathematical sense.
 This makes them good at hiding unexpected behaviors in the&nbsp;corners.</p>
@@ -382,8 +395,9 @@ Fault-tolerance in distributed systems consisting of many nodes is quite differe
 Although, the latter might be affected if individual nodes continue behaving unpredictably instead
 of just <a class="reference external" href="https://en.wikipedia.org/wiki/Fail-fast">failing fast</a>.</p>
 <p>Let me elaborate based on the following code snippet. The function <code>approximate</code>
-takes two inputs <code>i1</code> and <code>i2</code> and one hyperparameter input <code>i3</code> that is assumed
-to be a positive integer. Local parameter <code>k</code> and <code>i3</code>
+takes two inputs <code>i1</code> and <code>i2</code> and one hyperparameter input <code>i3</code>.
+The latter is assumed to be a positive integer.
+Local parameter <code>k</code> and <code>i3</code>
 need to be protected (e.g., using software redundancy) otherwise the loop might not&nbsp;terminate.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
@@ -412,6 +426,9 @@ This should provide a good reason for protecting&nbsp;them.</p>
 <p>On the other hand, protecting <code>foo</code> and <code>bar</code> with software-based reliability
 can prove more costly than running function <code>approximate</code> on deterministic hardware in the first place.
 This is the essence of the control-flow&nbsp;wall.</p>
+<p>Basically, decisions taken in the control-flow usually depend on the processed data.
+Guaranteeing data correctness is costly to do in software.
+On the other hand, allowing nondeterministic errors to affect data means that we can&#8217;t, in general, guarantee how the algorithm would&nbsp;behave.</p>
 <p>General-purpose programming on nondeterministic hardware was tackled in Chisel <a class="footnote-reference" href="#id29" id="id13">[13]</a>
 (A successor for a language called Rely).
 The authors assume a hardware model where processors provide reliable and unreliable
@@ -423,37 +440,37 @@ order explore the design-space while maintaining the validity of reliability spe
 Still, their analyses are limited by data dependencies in the control-flow&nbsp;graph.</p>
 <p>It&#8217;s important to differentiate between the reliability specification in Chisel
 and the similar probabilistic specification of say Uncertain&lt;T&gt; <a class="footnote-reference" href="#id30" id="id14">[14]</a>.
-The latter is a probabilistic programming extension for general-purpose languages.
-This means that the inputs are typically prior probability distributions that need to
+The latter is a probabilistic programming extension to general-purpose languages.
+This means that the inputs are, typically, prior probability distributions that need to
 be processed <em>deterministically</em>&nbsp;.</p>
-<p>That said, and without being able to (probably) guarantee correctness,
+<p>That said, and without being able to guarantee (probable) correctness,
 would it make any sense to use nondeterministic hardware? Well, it depends.
-In the case were the cost of failure is small, and errors can&#8217;t propagate deep into the program
-anyway, being failure oblivious can make sense <a class="footnote-reference" href="#id31" id="id15">[15]</a>.</p>
+In the case where the cost of failure is small, and errors can&#8217;t propagate deep into the program
+anyway, being failure oblivious might make sense <a class="footnote-reference" href="#id31" id="id15">[15]</a>.</p>
 <p>Also, heterogeneous reliability, from my perspective, can make nondeterministic
 hardware a viable option in practice.
 Basically, reliable cores are used to run operating systems, language runtime, and programs.
 Only compute-intensive kernels/regions might be offloaded to accelerators which are possibly built using unreliable nondeterministic hardware.
 A notable example here is <span class="caps">ERSA</span> <a class="footnote-reference" href="#id32" id="id16">[16]</a>.</p>
 </div>
-<div class="section" id="conclusions">
-<h2>Conclusions</h2>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
 <p>Improving efficiency is a continuous endeavor in all engineering disciplines.
 This endeavor requires balancing trade-offs between system cost and gained value.
 The goal is to obtain results that are good enough for the cost we&nbsp;invest.</p>
-<p>Approximate computing is the research area where we try to realize techniques to
-<em>automatically</em> gain efficiency by trading off result quality with a metric of interest
+<p>Approximate computing is the research area where we attempt to realize techniques to
+<em>automatically</em> gain computing efficiency by trading off output quality with a metric of interest
 such as performance and energy.
 Automation is key to the value proposal of approximate computing as practitioners
-are able of balancing those trade-offs manually&nbsp;already.</p>
+are able of manually balancing those trade-offs&nbsp;already.</p>
 <p>Approximation also needs to be <em>principled</em> which allow practitioners to
 trust the system to behave as expected in the real world.
 Combining automation and principled guarantees is essential, in my opinion,
 for approximate computing to have a secure place in the engineering&nbsp;toolbox.</p>
 <p>This article briefly introduced approximate computing.
 The discussion covered the entire system stack from algorithms to hardware circuits.
-I elaborated a bit more on nondeterministic approximation computing due to
-the special attention it receives from hardware reliability&nbsp;community.</p>
+Also, I elaborated a bit on nondeterministic approximation computing due to
+the special attention it received from the research&nbsp;community.</p>
 <p><span class="raw-html"><hr/></span></p>
 <table class="docutils footnote" frame="void" id="id17" rules="none">
 <colgroup><col class="label" /><col /></colgroup>
