@@ -4,7 +4,9 @@ accuracy of computations in order to improve performance, energy, and/or other
 metric of merit. In this article, I&amp;#8217;ll try to provide a structured introduction
 to this research&amp;nbsp;area.&lt;/p&gt;
 </summary><content type="html">&lt;blockquote class="pull-quote"&gt;
-Update on 15 Nov 2017. General text improvements.&lt;/blockquote&gt;
+&lt;p&gt;12 Dec 2017. This article is now available on &lt;a class="reference external" href="https://arxiv.org/abs/1711.06115"&gt;arXiv&lt;/a&gt; with more&amp;nbsp;updates.&lt;/p&gt;
+&lt;p&gt;15 Nov 2017. General text&amp;nbsp;improvements.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;Approximate Computing (&lt;span class="caps"&gt;AC&lt;/span&gt;) is a wide spectrum of techniques that relax
 the accuracy of computation in order to improve performance, energy, and/or another
 metric of merit.
