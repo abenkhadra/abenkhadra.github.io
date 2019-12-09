@@ -1,1 +1,8 @@
-hi
+User-agent: *
+Allow: /
+
+User-agent: *
+Disallow: /theme/
+Disallow: /author/
+
+Sitemap: https://blog.formallyapplied.com/sitemap.xml

@@ -9,7 +9,7 @@
 
 
 
-<link rel="canonical" href="https://blog.formallyapplied.com/2017/05/ub-in-wild/">
+<link rel="canonical" href="/2017/05/ub-in-wild/">
 
         <meta name="author" content="Ammar Ben Khadra" />
         <meta name="keywords" content="c++,gcc,undefined behavior" />
@@ -18,7 +18,7 @@
         <meta property="og:site_name" content="Formally Applied" />
         <meta property="og:type" content="article"/>
         <meta property="og:title" content="Undefined behavior in the wild"/>
-        <meta property="og:url" content="https://blog.formallyapplied.com/2017/05/ub-in-wild/"/>
+        <meta property="og:url" content="/2017/05/ub-in-wild/"/>
         <meta property="og:description" content="So I was hacking an open source C++ project. The project builds using gcc v5.4 and runs without problems. Then, I grabbed gcc v6.2 to see how much performance improvement can be gained. Surprisingly, the program segfaulted …"/>
         <meta property="article:published_time" content="2017-05-25" />
             <meta property="article:section" content="programming" />
@@ -29,20 +29,20 @@
 
 
     <!-- Bootstrap -->
-        <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/bootstrap.formally.min.css" type="text/css"/>
-    <link href="https://blog.formallyapplied.com/theme/css/font-awesome.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/theme/css/bootstrap.formally.min.css" type="text/css"/>
+    <link href="/theme/css/fontawesome.min.css" rel="stylesheet">
+    <link href="/theme/css/solid.min.css" rel="stylesheet">
 
-    <link href="https://blog.formallyapplied.com/theme/css/pygments/tango.css" rel="stylesheet">
-        <link href="https://blog.formallyapplied.com/theme/css/typogrify.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/style.css" type="text/css"/>
-
-        <link href="https://blog.formallyapplied.com/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
-              title="Formally Applied ATOM Feed"/>
-
+    <link href="/theme/css/pygments/tango.css" rel="stylesheet">
+        <link href="/theme/css/typogrify.css" rel="stylesheet">
+    <link rel="stylesheet" href="/theme/css/style.css" type="text/css"/>
+        <link href="/fonts/inter.css" rel="stylesheet">
 
 
-        <link href="https://blog.formallyapplied.com/feeds/programming.atom.xml" type="application/atom+xml" rel="alternate"
-              title="Formally Applied programming ATOM Feed"/>
+        <link href="/feeds/all.rss.xml" type="application/rss+xml" rel="alternate"
+              title="Formally Applied RSS Feed"/>
+
+
 
 </head>
 <body>
@@ -56,13 +56,13 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a href="https://blog.formallyapplied.com/" class="navbar-brand">
-<img class="img-responsive pull-left gap-right" src="https://blog.formallyapplied.com/images/logo.svg" width="30"/> Formally Applied            </a>
+            <a href="/" class="navbar-brand">
+<img class="img-responsive pull-left gap-right" src="/images/logo.svg" width="30"/> Formally Applied            </a>
         </div>
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
-                    <li><a href="/pages/about/"><i class="fa fa-question-circle" aria-hidden="true"> </i> &nbsp; About</a></li>
-                    <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"> </i> &nbsp; Archives</a></li>
+                    <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"></i>&nbsp;Archives</a></li>
+                    <li><a href="https://www.eit.uni-kl.de/eis/people/khadra/"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
             </ul>
@@ -79,7 +79,7 @@
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="https://blog.formallyapplied.com/2017/05/ub-in-wild/"
+                    <a href="/2017/05/ub-in-wild/"
                        rel="bookmark"
                        title="Permalink to Undefined behavior in the wild">
                         Undefined behavior in the&nbsp;wild
@@ -92,19 +92,19 @@
 <footer class="post-info">
     <span class="label label-default"></span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2017-05-25T10:20:00+02:00"> 25 May 2017</time>
+      <i class="fas fa-calendar-alt"></i><time datetime="2017-05-25T10:20:00+02:00"> 25 May 2017</time>&nbsp;
     </span>
 
 
 
 
 
-<span class="label label-default">Tags</span>
-	<a href="https://blog.formallyapplied.com/tag/c.html">c++</a>
+<i class="fas fa-tags"></i>
+	<a href="/tag/c.html">c++</a>
         /
-	<a href="https://blog.formallyapplied.com/tag/gcc.html">gcc</a>
+	<a href="/tag/gcc.html">gcc</a>
         /
-	<a href="https://blog.formallyapplied.com/tag/undefined-behavior.html">undefined behavior</a>
+	<a href="/tag/undefined-behavior.html">undefined behavior</a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
@@ -296,7 +296,7 @@ in order to catch potential issues early and more&nbsp;often.</p>
       <hr>
       <div class="row">
          <!-- <div class="col-xs-10">&copy; 2017 Ammar Ben Khadra -->
-            <div class="col-xs-10">&copy; 2018 Ammar Ben Khadra
+            <div class="col-xs-10">&copy; 2017-2019 Ammar Ben Khadra
             <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> -->         </div>
@@ -304,31 +304,14 @@ in order to catch potential issues early and more&nbsp;often.</p>
       </div>
    </div>
 </footer>
-<script src="https://blog.formallyapplied.com/theme/js/jquery.min.js"></script>
+<script src="/theme/js/jquery.min.js"></script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
-<script src="https://blog.formallyapplied.com/theme/js/bootstrap.min.js"></script>
+<script src="/theme/js/bootstrap.min.js"></script>
 
 <!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
-<script src="https://blog.formallyapplied.com/theme/js/respond.min.js"></script>
+<script src="/theme/js/respond.min.js"></script>
 
-    <!-- Google Analytics -->
-    <script type="text/javascript">
-
-        var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', 'UA-58845389-3']);
-        _gaq.push(['_trackPageview']);
-
-        (function () {
-            var ga = document.createElement('script');
-            ga.type = 'text/javascript';
-            ga.async = true;
-            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-            var s = document.getElementsByTagName('script')[0];
-            s.parentNode.insertBefore(ga, s);
-        })();
-    </script>
-    <!-- End Google Analytics Code -->
 
 </body>
 </html>
