@@ -1,23 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
-    <title>Formally Applied</title>
+    <title>An introduction to approximate computing - Formally Applied</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Refresh" content="0; url=https://blog.formallyapplied.com/2017/11/approx-intro/" />
 
+<link rel="canonical" href="https://blog.formallyapplied.com/2017/11/approx-intro/">
 
-<link rel="canonical" href="https://blog.formallyapplied.com">
         <meta name="author" content="Ammar Ben Khadra" />
+        <meta name="keywords" content="blog, binary analysis, software analysis, binary instrumentation, smt solvers
+                software security, Ph.D. research, academic blog" />
+        <meta name="description" content="Research notes on software analysis and security." />
 
-    <!-- Open Graph tags -->
         <meta property="og:site_name" content="Formally Applied" />
-        <meta property="og:type" content="website"/>
-        <meta property="og:title" content="Formally Applied"/>
-        <meta property="og:url" content="https://blog.formallyapplied.com"/>
-        <meta property="og:description" content="Research notes on software analysis and security. "/>
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="An introduction to approximate computing"/>
+        <meta property="og:url" content="https://blog.formallyapplied.com/2017/11/approx-intro/"/>
+        <meta property="og:description" content="Approximate computing is a wide spectrum of techniques that relax accuracy of computations in order to improve performance, energy, and/or other metric of merit. In this article, I’ll try to provide a structured introduction to this research area."/>
+        <meta property="article:published_time" content="2017-11-07" />
+            <meta property="article:section" content="research" />
+            <meta property="article:tag" content="approximate computing" />
+            <meta property="article:tag" content="reliability" />
+            <meta property="article:author" content="Ammar Ben Khadra" />
 
 
     <!-- Bootstrap -->
@@ -67,52 +73,509 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-12">
-            <article>
-                <h2><a href="https://blog.formallyapplied.com/2017/11/approx-intro/">An introduction to approximate&nbsp;computing</a></h2>
-                <div class="summary"><p class="first last">Approximate computing is a wide spectrum of techniques that relax
-accuracy of computations in order to improve performance, energy, and/or other
-metric of merit. In this article, I&#8217;ll try to provide a structured introduction
-to this research&nbsp;area.</p>
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.formallyapplied.com/2017/11/approx-intro/"
+                       rel="bookmark"
+                       title="Permalink to An introduction to approximate computing">
+                        An introduction to approximate&nbsp;computing
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default"></span>
+    <span class="published">
+      <i class="fas fa-calendar-alt"></i><time datetime="2017-11-07T10:20:00+01:00"> 07 Nov 2017</time>&nbsp;
+    </span>
 
-                    <!-- <a class="btn btn-default btn-xs" href="https://blog.formallyapplied.com/2017/11/approx-intro/">Read more ...</a> -->
+
+
+
+
+<i class="fas fa-tags"></i>
+	<a href="https://blog.formallyapplied.com/tag/approximate-computing.html">approximate computing</a>
+        /
+	<a href="https://blog.formallyapplied.com/tag/reliability.html">reliability</a>
+
+</footer><!-- /.post-info -->                    </div>
                 </div>
-            </article>
-            <hr/>
-            <article>
-                <h2><a href="https://blog.formallyapplied.com/2017/05/ub-in-wild/">Undefined behavior in the&nbsp;wild</a></h2>
-                <div class="summary"><p class="first last">So I was hacking an open source C++ project. The project builds
-using gcc v5.4 and runs without problems. Then, I grabbed gcc v6.2 to see
-how much performance improvement can be gained. Surprisingly, the program segfaulted&nbsp;&#8230;</p>
+                <blockquote class="pull-quote">
+<p>12 Dec 2017. This article is now available on <a class="reference external" href="https://arxiv.org/abs/1711.06115">arXiv</a> with more&nbsp;updates.</p>
+<p>15 Nov 2017. General text&nbsp;improvements.</p>
+</blockquote>
+<p>Approximate Computing (<span class="caps">AC</span>) is a wide spectrum of techniques that relax
+the accuracy of computation in order to improve performance, energy, and/or another
+metric of merit.
+<span class="caps">AC</span> exploits the fact that several important applications,
+like machine learning and multimedia processing, do not require precise results to be&nbsp;useful.</p>
+<p>For instance, we can use a lower resolution image encoder
+in applications where high-quality images are not necessary.
+In a data center, this may lead to large savings in
+the amount of required processing, storage, and communication&nbsp;bandwidth.</p>
+<p>Research interest in <span class="caps">AC</span> has been growing in recent years.
+I refer here to two recent surveys <a class="footnote-reference" href="#id17" id="id1">[1]</a> <a class="footnote-reference" href="#id18" id="id2">[2]</a> for a comprehensive treatment.
+In this article, I&#8217;ll try to provide an introduction to this research&nbsp;field.</p>
+<p>Basically, my discussion starts from the absolute beginning by motivating
+<span class="caps">AC</span> and discussing its research scope.
+Then, I discuss key concepts based on a proposed taxonomy.
+Finally, I further elaborate on nondeterministic <span class="caps">AC</span>, an <span class="caps">AC</span> category with unique opportunities as well as&nbsp;challenges.</p>
+<p>Graduate students will, hopefully, find this introduction useful
+to catch up with recent&nbsp;developments.</p>
+<p>Note that some of the ideas discussed here are based on a poster I presented at an <span class="caps">AC</span> workshop.
+The workshop was a satellite event to <a class="reference external" href="http://esweek.org/"><span class="caps">ESWEEK</span>&#8216;16</a>.
+Our extended  <a class="reference external" href="/docs/approx16.pdf">abstract</a> highlighted some <span class="caps">AC</span> challenges and opportunities in general.
+There, we argued that nondeterministic <span class="caps">AC</span> faces a fundamental
+control-flow <em>wall</em> which is bad news! The good news, however, is that there are
+still enough opportunities in deterministic <span class="caps">AC</span> to keep practitioners busy for the foreseeable&nbsp;future.</p>
+<p>I shall elaborate on those issues and more in the&nbsp;following.</p>
+<div class="section" id="motivation">
+<h2>Motivation</h2>
+<p>So let&#8217;s start by trying to answer the <em>why</em> and <em>what</em> questions for <span class="caps">AC</span>.
+Our concrete questions in this regard&nbsp;are:</p>
+<ul class="simple">
+<li>What motivates the recent academic interest in <span class="caps">AC</span>? In other words why do we
+need to care about <span class="caps">AC</span> more than&nbsp;before?</li>
+<li>What approximate computing really is? Note that <span class="caps">AC</span> is used in practice
+for decades already, so what makes recent academic proposals&nbsp;different?</li>
+</ul>
+<p>In fact, research in <span class="caps">AC</span> can be motivated by two key concerns, namely, power and&nbsp;reliability.</p>
+<p>Nowadays, the majority of our computations are being done either on mobile devices or in large data centers (think of cloud computing).
+Both platforms are sensitive to power consumption.
+That is, it would be nice if we can extend the operation time of smartphones and other battery powered devices
+before the next&nbsp;recharge.</p>
+<p>Also, and perhaps more importantly, the energy costs incurred
+on data centers need to be reduced as much as possible. Note that power is one of (if not the) major
+operational cost of running a data center. To this end, algorithmic optimizations,
+dynamic run-time adaptation, and various types of hardware accelerators are used in&nbsp;practice.</p>
+<p>Vector processors, FPGAs, GPUs, and even ASICs (like Google&#8217;s recent <a class="reference external" href="https://en.wikipedia.org/wiki/Tensor_processing_unit"><span class="caps">TPU</span></a>)
+are all being deployed in an orchestrated effort to optimize performance and reduce power&nbsp;consumption.</p>
+<p>In this regard, the question that the <span class="caps">AC</span> community is trying to address is;
+can we exploit the inherit approximate results of some application to gain more power&nbsp;savings?</p>
+<p>We move now to reliability concerns to further motivate <span class="caps">AC</span>.
+The semiconductor industry is aggressively improving it&#8217;s production processes to keep
+pace with the venerable Moore&#8217;s law (or maybe a bit slower version of it in recent years).
+Microchips produced with <a class="reference external" href="https://en.wikipedia.org/wiki/10_nanometer">10 nanometer</a>
+processes are already shipping to production.
+Moving toward 7 nanometers and beyond is expected within the next 5 years according
+to the <a class="reference external" href="http://www.itrs2.net/"><span class="caps">ITRS</span></a>&nbsp;roadmap.</p>
+<p>Such nanometer regimes are expected to cause a twofold problem.
+First, transistors can be more susceptible to faults (both temporary and permanent ones).
+For example, cosmic radiation can more easily cause a glitch in data stored in a Flip-Flop.
+Consequently, more investment might be necessary in hardware fault avoidance, detection, and&nbsp;recovery.</p>
+<p>Second, feature variability between microchips or even across the same microchip
+can also increase. This means that design margins need to be more pessimistic
+to account for such large variability. That is, manufacturers have to allow for a wider margin
+for the supply voltage, frequency, and other operational parameters in order to
+keep the chip reliable while maintaining an economical&nbsp;yield.</p>
+<p>In response to these reliability challenges, the <span class="caps">AC</span> community is investigating
+the potential of using  narrower margins to operate microchips.
+However, hardware faults might occasionally propagate to software in this case.
+Therefore, the research goal is to ensure that such faults do not cause program outputs to diverge too much from the ideal&nbsp;outputs.</p>
+<p>Such schemes can allow chip manufacturers to relax their investments in maintaining hardware reliability.
+More performance and power saving opportunities can be harnessed by moving to best-effort hardware instead <a class="footnote-reference" href="#id19" id="id3">[3]</a>.</p>
+</div>
+<div class="section" id="definition-and-scope">
+<h2>Definition and&nbsp;scope</h2>
+<p>So far, we motivated the need for approximate computing.
+We move now to our second question; What is approximate computing in the first&nbsp;place?</p>
+<p>Let&#8217;s come back to our image encoding example. We know that applying any lossy compression
+algorithm (<span class="caps">JPEG</span> for example) to a raw image will result in an approximate image.
+Such compression often comes (by design) with little human perceptible loss in image quality.
+Also, image encoders usually have tunable algorithmic <em>knobs</em>, like compression level,
+to trade off image size with its&nbsp;quality.</p>
+<p>Therefore, do not we already know how to do <span class="caps">AC</span> on images?
+Actually, instances of <span class="caps">AC</span> are by no means limited to image processing.
+<span class="caps">AC</span> is visible in many domains from wireless communication to control systems and beyond.
+In fact, one can argue that every computing system ever built did require balancing trade-offs
+between cost and quality of results.
+This is what engineering is about after&nbsp;all.</p>
+<p>Indeed, approximate computing is already a stable tool in the engineering toolbox.
+However, it&#8217;s usually applied <em>manually</em> leveraging domain knowledge and past experience.
+The main goal of recent <span class="caps">AC</span> research, I think, is to introduce <em>automation</em> to the approximation process.
+That is, the research goal is to (semi-) automatically derive/synthesize more efficient computing systems
+which produce approximate results that are good&nbsp;enough.</p>
+<p>I shall elaborate on this point based on Figure (1).
+Consider for example that you have been given a computing system with a well-specified functionality.
+Such system can consist of software, hardware, or a combination of both.
+Now, your task is to optimize this system to improve its performance.
+How would you typically go about this&nbsp;task?</p>
+<div class="figure align-center">
+<img alt="manual vs. automatic approximate computing" src="/images/approx-fig01.png" />
+<p class="caption">Figure (1): <span class="caps">AC</span> can be applied (a) manually in the usual profile/optimize cycle,
+or (b) automatically via an approximation method which may require providing an error quality&nbsp;specification.</p>
+</div>
+<p>Ideally, you start by collecting <em>typical</em> inputs which represent what you expect
+the system to handle in the real world. Then, based on those inputs, you attempt to profile
+the system to identify hot regions where the system spends most of the time.
+After that, the serious optimization work begins which might involve several system&nbsp;layers.</p>
+<p>For example, in a software program, you will often need to modify the algorithms and data structures used.
+You might also go all the way down to the nitty-gritty details of improving cache alignment or
+&#8216;stealing&#8217; unused bits in some data structures for other&nbsp;purposes.</p>
+<p>This profile/optimize cycle continues until you either meet your performance target
+or you think that you have reached the point of diminishing returns.
+This optimization process is generally applicable to any computing system.
+However, with a system that can tolerate <em>controllable</em> deviations from its original outputs,
+you can go a bit further in your&nbsp;optimization.</p>
+<p>Basically, <span class="caps">AC</span> is about this last mile in optimization.
+The research goal is to investigate <strong>automatic</strong>, <strong>principled</strong>, and ideally <strong>generic</strong> techniques
+to gain more efficiency by relaxing the exactness of outputs.
+The need for automation is obvious since manual approximation techniques can simply be regarded as &#8216;business as usual&#8217;
+i.e., without clear improvement over the state of&nbsp;practice.</p>
+<p>Furthermore, <span class="caps">AC</span> needs to guarantee, in a principled way, that the expected output errors
+will remain &#8216;acceptable&#8217; in the field.
+That is, computing systems already struggle with implementation bugs. Therefore, it&#8217;s difficult to adopt
+an <span class="caps">AC</span> technique that can introduce more bugs in the form of arbitrary&nbsp;outputs.</p>
+<p>We come to the third criterion which is generality.
+I consider a technique to be generic if it is applicable to a wide spectrum of domains of interest to <span class="caps">AC</span>.
+For example, loop invariant <a class="reference external" href="https://en.wikipedia.org/wiki/Loop-invariant_code_motion">code motion</a>
+is a generic compiler optimization that applies to virtually any program from scientific simulations
+to <a class="reference external" href="https://en.wikipedia.org/wiki/High-level_synthesis">high-level synthesis</a>.</p>
+<p>Generality, however, is more challenging to achieve in <span class="caps">AC</span> compared to the &#8216;safe&#8217; optimizations used in compilers.
+A <em>local</em> <span class="caps">AC</span> optimization might introduce errors which are difficult to reason about when combined
+with other <em>local</em> optimizations.
+Note that the combined error observed on the <em>global</em> outputs might be composed of several local&nbsp;errors.</p>
+<p>Actually, I&#8217;d argue that it&#8217;s not feasible to target, to a satisfactory level, all three criteria.
+In other words, better automation and principled guarantees require compromising on generality.
+This can be achieved by embedding domain-specific knowledge in the <span class="caps">AC</span> technique.
+This seems to be a reasonable thing to do given the diversity of domains where <span class="caps">AC</span> is&nbsp;applicable.</p>
+<p>A prime advantage of compromising on generality is that end users won&#8217;t need to explicitly
+provide error quality specification, see Figure (1).
+Metrics of acceptable errors will be based on the specific domain.
+For instance, <a class="reference external" href="https://en.wikipedia.org/wiki/Generalization_error">generalization error</a> in machine learning and
+<a class="reference external" href="https://en.wikipedia.org/wiki/Peak_signal-to-noise_ratio"><span class="caps">PSNR</span></a> in image&nbsp;compression.</p>
+</div>
+<div class="section" id="a-taxonomy-of-approximate-computing">
+<h2>A taxonomy of approximate&nbsp;computing</h2>
+<p>The literature on approximate computing is large and growing.
+Also, it covers the entire system stack from high-level algorithms down to individual hardware circuits.
+It&#8217;s difficult to make sense of all of these developments without introducing some sort of structure.
+In this section, I&#8217;ll attempt such structuring based on the taxonomy depicted in Figure (2).
+Also, selected pointers to the relevant literature will be&nbsp;highlighted.</p>
+<p>Basically, my hypothesis is that we can map any individual <span class="caps">AC</span> technique to a point in a
+three-dimensional space. The considered axes represent the approximation level,
+required run-time support, and behavior determinism respectively.
+Of course, there are papers on <span class="caps">AC</span> that combine several techniques in one&nbsp;proposal.</p>
+<div class="figure align-center">
+<img alt="approximate computing taxonomy" src="/images/approx-fig02.png" />
+<p class="caption">Figure (2): Proposed <span class="caps">AC</span> taxonomy. Expected cost of targeting a design point
+rises as we move away from the&nbsp;center.</p>
+</div>
+<p>The reader might be wondering why hardware circuits have been placed higher up while
+the algorithm level is at the bottom? The reason is simply the expected <em>cost</em> of targeting
+such a design point. In other words, I expect the implementation cost to increase
+as one explores design points further away from the&nbsp;center.</p>
+<p>For instance, a system that involves dynamic run-time adaption, e.g., for error quality monitoring,
+is more complex, and thus more costly, to build and maintain compared to a static system.
+However, run-time adaptation might provide sufficient benefits to amortize the higher cost if designed with&nbsp;care.</p>
+<p>Now, we move to the determinism axis.
+My classification is based on the usual <a class="reference external" href="https://en.wikipedia.org/wiki/Nondeterministic_algorithm">determinism</a> property.
+That is, an algorithm that returns the same output repeatedly given the same input is <em>deterministic</em>.
+Nondeterministic algorithms do not exhibit such output&nbsp;repeatability.</p>
+<p>I further classify nondeterministic algorithms to <em>partially</em> and <em>fully</em> nondeterministic.
+These categories are based on the sources of nondeterminism in the algorithm and bug reproducibility.
+Nondeterministic <span class="caps">AC</span> will be discussed in more detail in the next&nbsp;section.</p>
+<p>The axis of approximation level in Figure (2) has been (roughly) divided into 4 categories.
+At algorithm level, a given algorithm is kept intact.
+To implement approximation, one has to manipulate either the inputs or algorithm configurations
+(knobs or <a class="reference external" href="https://en.wikipedia.org/wiki/Hyperparameter_(machine_learning)">hyperparameters</a>).
+An example of the former can be found in ApproxHadoop <a class="footnote-reference" href="#id20" id="id4">[4]</a> where the authors utilized a statistical input
+sampling scheme in order to derive approximate&nbsp;results.</p>
+<p>In comparison, one can leave the inputs and modify the hyperparameters instead.
+Approximation via hyperparameter
+optimization is a well-established research theme in machine learning. It&#8217;s known there as &#8216;learning to learn&#8217;
+or &#8216;meta-learning&#8217;. I won&#8217;t elaborate on this here and refer the reader to <a class="footnote-reference" href="#id21" id="id5">[5]</a>
+simply because the paper title seems &#8216;meta&#8217;&nbsp;enough.</p>
+<p>Also noteworthy in the algorithm category is Capri <a class="footnote-reference" href="#id22" id="id6">[6]</a>.
+There, the authors formulate knob tuning as a constrained optimization problem.
+To solve this problem, their proposed system learns cost and error models using bayesian&nbsp;networks.</p>
+<p>Let&#8217;s move now to application level approximation where we have to
+modify things <em>inside</em> the original algorithm. Compare this to the previous level
+where the original algorithm was an untouchable black-box.
+A good example here is loop perforation <a class="footnote-reference" href="#id23" id="id7">[7]</a>.
+There, the authors identified certain loop patterns and propose techniques to automatically skip
+loop&nbsp;iterations.</p>
+<p>For approximation at the architecture level, I refer to Quora <a class="footnote-reference" href="#id24" id="id8">[8]</a>.
+Basically, the authors propose to extend the <span class="caps">ISA</span> of vector processors such
+that computation quality can be specified in the instruction set.
+Error precision is deterministically bound for each&nbsp;instruction.</p>
+<p>Finally, there is approximation in hardware circuits.
+There are several proposals in the literature for approximate arithmetic units like
+adders and multipliers. They can be generally classified to deterministic
+(with reduced precision) and nondeterministic. Units of the latter type work most of
+the time as expected. However, they can occasionally produce arbitrary&nbsp;outputs.</p>
+<p>The approximate circuits previously discussed are mostly designed manually for their specific purpose.
+In contrast, the authors of <span class="caps">SALSA</span> <a class="footnote-reference" href="#id25" id="id9">[9]</a> approach hardware approximation from a different angle.
+They propose a general technique to <em>automatically</em> synthesize approximate circuits given golden <span class="caps">RTL</span> model and quality&nbsp;specifications.</p>
+<p>I conclude this section by discussing how cost is expected to increase as we go from algorithm level to circuit
+level. Given a (correct) algorithm that exposes some configurable knobs. Adapting such algorithm
+to different settings is relatively cheap. Also, it can be highly automated based on established meta-
+optimization literature as can be found in&nbsp;meta-learning.</p>
+<p>However, things get more challenging if we were to approximate outputs based on the internal workings of an algorithm.
+Generally, this application level approximation requires asking users for annotations or assumptions on expected inputs.
+Consequently, there is a smaller opportunity for automation and more difficulty in guaranteeing error&nbsp;quality.</p>
+<p>The expected cost gets even higher at architecture level were several stakeholders might be affected.
+Compiler engineers, operating systems developers, and hardware architects all need to be either
+directly involved or at least aware of the approximation intended by the original algorithm developers.
+A proposed <span class="caps">AC</span> technique should demonstrate a serious value across the board to convince all of these
+people to get&nbsp;involved.</p>
+</div>
+<div class="section" id="on-nondeterministic-approximate-computing">
+<h2>On nondeterministic approximate&nbsp;computing</h2>
+<p>Let&#8217;s begin this section with a definition;
+An algorithm is considered to be nondeterministic if its output can be different for the same input.
+In a partially nondeterministic algorithm, nondeterminism sources can be feasibly accounted for a priori.
+Otherwise, the algorithm is considered fully&nbsp;nondeterministic.</p>
+<p>Simulated annealing is an example of a partially nondeterministic algorithm where
+picking the next step is based on a random choice.
+Despite this, its control-flow behavior remain predictable which makes it relatively
+easy to reproduce implementation bugs with repeated runs.
+In contrast, the followed control-flow path can differ in &#8216;unexpected&#8217; ways
+in the case of fully nondeterministic&nbsp;algorithms.</p>
+<p>A nondeterministic <span class="caps">AC</span> technique introduces (or increases) nondeterminism in a given
+algorithm. This can be realized in several ways.
+In ApproxHadoop, the authors proposed random task dropping to gain more efficiency. Also, authors of <span class="caps">SAGE</span> <a class="footnote-reference" href="#id26" id="id10">[10]</a>
+proposed skipping atomic primitives to gain performance at the expense of
+exposing the algorithm to race&nbsp;conditions.</p>
+<p>Nondeterministic <span class="caps">AC</span> introduced by unreliable hardware has
+received special attention from the research community. This is motivated
+by the potential efficiency gains discussed already.
+I&#8217;ll focus in the following on nondeterministic <span class="caps">AC</span> that is realized by unreliable hardware.
+Note that an algorithm is, typically, fully nondeterministic in this&nbsp;case.</p>
+<p>There several possibilities to implement hardware-based nondeterministic <span class="caps">AC</span>.
+<span class="caps">DRAM</span> cells need a periodic refresh to retain their data which consumes energy.
+Equipping DRAMs with &#8216;selective&#8217; no-refresh mechanisms saves energy but risks occasional bit&nbsp;errors.</p>
+<p>Similarly, dynamically adapting bus compression and error detection mechanisms can provide  significant
+gains in the communication between main memory and processing&nbsp;cores.</p>
+<p>Additionally, there are efficiency opportunities in allowing processing cores
+themselves to provide a best-effort rather than a reliable service.
+In this setting, hardware engineers may <em>optimistically</em> invest in reliability&nbsp;mechanisms.</p>
+<p>However, software programmers need, in turn, to be aware of hardware unreliability and
+invest in fault management schemes suitable for their particular needs.
+Relax <a class="footnote-reference" href="#id27" id="id11">[11]</a> provide a good example of such an&nbsp;arrangement.</p>
+<p>Also, <span class="caps">CLEAR</span> <a class="footnote-reference" href="#id28" id="id12">[12]</a> provides an interesting design-space exploration
+of reliability against soft-errors across the entire system&nbsp;stack.</p>
+<p>Despite the extensive research in reliability in general and more recently
+in <span class="caps">AC</span>. The problem of running software <em>reliably</em> and <em>efficiently</em>
+on unreliable hardware is far from solved.
+Beside the cost factor mentioned in the previous section,
+there are still major interdisciplinary problems to be&nbsp;addressed.</p>
+<p>First, there is the abstraction problem of the hardware/software interface.
+Extending the <span class="caps">ISA</span> abstraction makes sense given its ubiquity.
+For example, each <span class="caps">ISA</span> instruction might be extended with probability specification.
+This probability quantifies how many times this nondeterministic instruction is expected to
+supply correct results (I&#8217;m becoming frequentist&nbsp;here).</p>
+<p>However, microchip designs nowadays are complex possibly comprising tens of <span class="caps">IP</span> modules
+from several <span class="caps">IP</span> providers. It&#8217;s difficult for a microchip manufacturer to derive such
+probabilities per individual instruction.
+Even where such derivation is possible,
+microchip manufacturers would be reluctant to guarantee such probabilities
+to their customers. Maintaining such guarantees through the entire product lifetime
+would prove&nbsp;costly.</p>
+<p>Further, I think that it&#8217;s still not clear how much value can this instruction-level abstraction
+provide to hardware as well as software engineers.
+Consequently, the question of finding suitable and generic abstractions between software and unreliable hardware is still&nbsp;open.</p>
+<p>Second, there is the correctness challenge.
+Can we establish that a software running on nondeterministic hardware is correct
+or maybe <a class="reference external" href="https://www.cs.cornell.edu/~asampson/blog/probablycorrect.html">probably correct</a>?
+A short answer is probably&nbsp;no!</p>
+<p>There are several reasons for this correctness challenge.
+Statistical correctness requires sampling from (joint) probability distributions of inputs
+which are typically not available a priori.
+Also, software functions are generally noncontinuous and nonlinear in the mathematical sense.
+This makes them good at hiding unexpected behaviors in the&nbsp;corners.</p>
+<p>More importantly, algorithms process inputs in deterministic steps based on a
+specific control-flow. Nondeterministic hardware might affect control-flow decisions
+causing the algorithm to immediately fail, or worse, proceed and produce arbitrary&nbsp;outputs.</p>
+<p>Note that the focus of this discussion is on the setting of a single computing node.
+Fault-tolerance in distributed systems consisting of many nodes is quite different.
+Although, the latter might be affected if individual nodes continue behaving unpredictably instead
+of just <a class="reference external" href="https://en.wikipedia.org/wiki/Fail-fast">failing fast</a>.</p>
+<p>Let me elaborate based on the following code snippet. The function <code>approximate</code>
+takes two inputs <code>i1</code> and <code>i2</code> and one hyperparameter input <code>i3</code>.
+The latter is assumed to be a positive integer.
+Local parameter <code>k</code> and <code>i3</code>
+need to be protected (e.g., using software redundancy) otherwise the loop might not&nbsp;terminate.</p>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">approximate</span><span class="p">(</span><span class="kt">int</span> <span class="n">i1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i2</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i3</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">==</span> <span class="n">i3</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">foo</span><span class="p">(</span><span class="n">i1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">bar</span><span class="p">(</span><span class="n">i2</span><span class="p">))</span>
+      <span class="n">result</span> <span class="o">+=</span> <span class="n">foo</span><span class="p">(</span><span class="n">i1</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="n">result</span> <span class="o">+=</span> <span class="n">bar</span><span class="p">(</span><span class="n">i2</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">result</span>
+<span class="p">}</span>
+</pre></div>
+</td></tr></table><p>The question now is what shall we do with functions <code>foo</code> and <code>bar</code>.
+Leaving them unprotected means that we risk producing unpredictable value in <code>result</code>.
+Note that a control-flow decision at line #4 is based on them.
+This should provide a good reason for protecting&nbsp;them.</p>
+<p>On the other hand, protecting <code>foo</code> and <code>bar</code> with software-based reliability
+can prove more costly than running function <code>approximate</code> on deterministic hardware in the first place.
+This is the essence of the control-flow&nbsp;wall.</p>
+<p>Basically, decisions taken in the control-flow usually depend on the processed data.
+Guaranteeing data correctness is costly to do in software.
+On the other hand, allowing nondeterministic errors to affect data means that we can&#8217;t, in general, guarantee how the algorithm would&nbsp;behave.</p>
+<p>General-purpose programming on nondeterministic hardware was tackled in Chisel <a class="footnote-reference" href="#id29" id="id13">[13]</a>
+(A successor for a language called Rely).
+The authors assume a hardware model where processors provide reliable and unreliable
+versions of instructions. Also, data can be stored in an unreliable&nbsp;memory.</p>
+<p>There, developers are expected to provide reliability specifications.
+Also, hardware engineers need to provide approximation specification.
+The authors combine static analysis and Integer-Linear Programming in
+order explore the design-space while maintaining the validity of reliability specification.
+Still, their analyses are limited by data dependencies in the control-flow&nbsp;graph.</p>
+<p>It&#8217;s important to differentiate between the reliability specification in Chisel
+and the similar probabilistic specification of say Uncertain&lt;T&gt; <a class="footnote-reference" href="#id30" id="id14">[14]</a>.
+The latter is a probabilistic programming extension to general-purpose languages.
+This means that the inputs are, typically, prior probability distributions that need to
+be processed <em>deterministically</em>&nbsp;.</p>
+<p>That said, and without being able to guarantee (probable) correctness,
+would it make any sense to use nondeterministic hardware? Well, it depends.
+In the case where the cost of failure is small, and errors can&#8217;t propagate deep into the program
+anyway, being failure oblivious might make sense <a class="footnote-reference" href="#id31" id="id15">[15]</a>.</p>
+<p>Also, heterogeneous reliability, from my perspective, can make nondeterministic
+hardware a viable option in practice.
+Basically, reliable cores are used to run operating systems, language runtime, and programs.
+Only compute-intensive kernels/regions might be offloaded to accelerators which are possibly built using unreliable nondeterministic hardware.
+A notable example here is <span class="caps">ERSA</span> <a class="footnote-reference" href="#id32" id="id16">[16]</a>.</p>
+</div>
+<div class="section" id="conclusion">
+<h2>Conclusion</h2>
+<p>Improving efficiency is a continuous endeavor in all engineering disciplines.
+This endeavor requires balancing trade-offs between system cost and gained value.
+The goal is to obtain results that are good enough for the cost we&nbsp;invest.</p>
+<p>Approximate computing is the research area where we attempt to realize techniques to
+<em>automatically</em> gain computing efficiency by trading off output quality with a metric of interest
+such as performance and energy.
+Automation is key to the value proposal of approximate computing as practitioners
+are able of manually balancing those trade-offs&nbsp;already.</p>
+<p>Approximation also needs to be <em>principled</em> which allow practitioners to
+trust the system to behave as expected in the real world.
+Combining automation and principled guarantees is essential, in my opinion,
+for approximate computing to have a secure place in the engineering&nbsp;toolbox.</p>
+<p>This article briefly introduced approximate computing.
+The discussion covered the entire system stack from algorithms to hardware circuits.
+Also, I elaborated a bit on nondeterministic approximation computing due to
+the special attention it received from the research&nbsp;community.</p>
+<p><span class="raw-html"><hr/></span></p>
+<table class="docutils footnote" frame="void" id="id17" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><tt class="docutils literal">S.</tt> Mittal, “A Survey of Techniques for Approximate Computing,” <span class="caps">ACM</span> Comput. Surv., vol. 48, no. 4, pp. 1–33, Mar. 2016.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id18" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><tt class="docutils literal">Q.</tt> Xu, et al. “Approximate Computing: A Survey,” <span class="caps">IEEE</span> Des. Test, vol. 33, no. 1, pp. 8–22, Feb. 2016.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id19" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[3]</td><td><tt class="docutils literal">S.</tt> Chakradhar and A. Raghunathan, “Best-effort computing: Re-thinking Parallel Software and Hardware,” in Proceedings of the 47th Design Automation Conference (<span class="caps">DAC</span> ’10), 2010, p. 865.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id20" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[4]</td><td><tt class="docutils literal">I.</tt> Goiri, et al. “ApproxHadoop: Bringing Approximations to MapReduce Frameworks,” in Proceedings of the 20th International Conference on Architectural Support for Programming Languages and Operating Systems (<span class="caps">ASPLOS</span>’15), 2015, vol. 43, no. 1, pp. 383–397.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id21" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[5]</td><td><tt class="docutils literal">M.</tt> Andrychowicz, et al., “Learning to learn by gradient descent by gradient descent,” preprint arXiv:1606.04474, 2016.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id22" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[6]</td><td><tt class="docutils literal">X.</tt> Sui, A. Lenharth, <span class="caps">D. S.</span> Fussell, and K. Pingali, “Proactive Control of Approximate Programs,” in Proceedings of the Twenty-First International Conference on Architectural Support for Programming Languages and Operating Systems (<span class="caps">ASPLOS</span> ’16), 2016, pp. 607–621.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id23" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[7]</td><td><tt class="docutils literal">S.</tt> Sidiroglou-Douskos, et al. “Managing performance vs. accuracy trade-offs with loop perforation,” in Proceedings of the 19th <span class="caps">ACM</span> <span class="caps">SIGSOFT</span> symposium and the 13th European conference on Foundations of software engineering (<span class="caps">FSE</span>’11), 2011, pp. 124–134.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id24" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[8]</td><td><tt class="docutils literal">S.</tt> Venkataramani, et al. “Quality programmable vector processors for approximate computing,” in Proceedings of the 46th Annual <span class="caps">IEEE</span>/<span class="caps">ACM</span> International Symposium on Microarchitecture - <span class="caps">MICRO</span>-46, 2013, pp. 1–12.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id25" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[9]</td><td><tt class="docutils literal">S.</tt> Venkataramani, et al. “<span class="caps">SALSA</span>: Systematic logic synthesis of approximate circuits,” in Proceedings of the 49th Annual Design Automation Conference on - <span class="caps">DAC</span> ’12, 2012, pp. 796–801.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id26" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[10]</td><td><tt class="docutils literal">M.</tt> Samadi, et al. “<span class="caps">SAGE</span>: self-tuning approximation for graphics engines,” in Proceedings of the 46th Annual <span class="caps">IEEE</span>/<span class="caps">ACM</span> International Symposium on Microarchitecture (<span class="caps">MICRO</span>&#8216;46), 2013, pp. 13–24.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id27" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[11]</td><td><tt class="docutils literal">M.</tt> de Kruijf, et al. “Relax: an architectural framework for software recovery of hardware faults,” in Proceedings of the 37th annual international symposium on Computer architecture, 2010, pp. 497–508.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id28" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[12]</td><td><tt class="docutils literal">E.</tt> Cheng, et al. “<span class="caps">CLEAR</span>: Cross-Layer Exploration for Architecting Resilience: Combining Hardware and Software Techniques To Tolerate Soft Errors in Processor Cores,” in Proceedings of the 53rd Annual Design Automation Conference (<span class="caps">DAC</span>’16), 2016, p. 68.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id29" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[13]</td><td><tt class="docutils literal">S.</tt> Misailovic, et al. “Chisel: reliability- and accuracy-aware optimization of approximate computational kernels,” in Proceedings of the 2014 <span class="caps">ACM</span> International Conference on Object Oriented Programming Systems Languages <span class="amp">&amp;</span> Applications (<span class="caps">OOPSLA</span>’14), 2014, pp. 309–328.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id30" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[14]</td><td><tt class="docutils literal">J.</tt> Bornholt, et al. “Uncertain&lt; T &gt;: a first-order type for uncertain data,” in Proceedings of the 19th international conference on Architectural support for programming languages and operating systems, 2014, pp. 51–66.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id31" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[15]</td><td><tt class="docutils literal">M.</tt> Rinard, et al. “Enhancing server availability and security through failure-oblivious computing,” in Proceedings of the 6th conference on Symposium on Opearting Systems Design <span class="amp">&amp;</span> Implementation (<span class="caps">OSDI</span>’04), 2004, p. 21.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id32" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[16]</td><td><tt class="docutils literal">L.</tt> Leem, et al. “<span class="caps">ERSA</span>: Error Resilient System Architecture for Probabilistic Applications,” in Proceedings of the Conference on Design, Automation and Test in Europe (<span class="caps">DATE</span>&#8216;10), 2010, pp. 1560–1565.</td></tr>
+</tbody>
+</table>
+</div>
 
-                    <!-- <a class="btn btn-default btn-xs" href="https://blog.formallyapplied.com/2017/05/ub-in-wild/">Read more ...</a> -->
-                </div>
-            </article>
-            <hr/>
-            <article>
-                <h2><a href="https://blog.formallyapplied.com/2017/05/gosat-faq/">Floating-point satisfiability as global&nbsp;optimization</a></h2>
-                <div class="summary"><p class="first last">Solving <span class="caps">SMT</span> formulas involving the theory of floating-pointing arithmetic (<span class="caps">FPA</span>)
-can be encountered in several domains including symbolic execution and program synthesis.
-Unfortunately, <span class="caps">SMT</span> solvers which support <span class="caps">FPA</span> often struggle
-trying to satisfy&nbsp;&#8230;</p>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
 
-                    <!-- <a class="btn btn-default btn-xs" href="https://blog.formallyapplied.com/2017/05/gosat-faq/">Read more ...</a> -->
-                </div>
-            </article>
-            <hr/>
-            <article>
-                <h2><a href="https://blog.formallyapplied.com/2017/05/building-this-blog/">Building this&nbsp;blog</a></h2>
-                <div class="summary"><p class="first last">Details about the tools and services used in building this blog. Also, some discussion
-about the design rationale behind&nbsp;it.</p>
-
-                    <!-- <a class="btn btn-default btn-xs" href="https://blog.formallyapplied.com/2017/05/building-this-blog/">Read more ...</a> -->
-                </div>
-            </article>
-            <hr/>
-
-        <ul class="pager">
-                <li class="previous disabled"><a href="#">&larr; Newer</a></li>
-                <li class="next disabled"><a href="#">Older &rarr;</a></li>
-        </ul>
         </div>
     </div>
 </div>
