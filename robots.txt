@@ -3,6 +3,6 @@ Allow: /
 
 User-agent: *
 Disallow: /theme/
-Disallow: /author/
+Disallow: /fonts/
 
 Sitemap: https://blog.formallyapplied.com/sitemap.xml
