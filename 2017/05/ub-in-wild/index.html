@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
-    <title>Undefined behavior in the wild - Formally Applied</title>
+    <title>Undefined behavior in the wild - Formally Applied</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -13,13 +13,13 @@
 
         <meta name="author" content="Ammar Ben Khadra" />
         <meta name="keywords" content="c++,gcc,undefined behavior" />
-        <meta name="description" content="So I was hacking an open source C++ project. The project builds using gcc v5.4 and runs without problems. Then, I grabbed gcc v6.2 to see how much performance improvement can be gained. Surprisingly, the program segfaulted …" />
+        <meta name="description" content="So I was hacking an open source C++ project. The project builds using gcc v5.4 and runs without problems. Then, I grabbed gcc v6.2 to see how much performance improvement can be gained. Surprisingly, the program segfaulted ..." />
 
         <meta property="og:site_name" content="Formally Applied" />
         <meta property="og:type" content="article"/>
-        <meta property="og:title" content="Undefined behavior in the wild"/>
+        <meta property="og:title" content="Undefined behavior in the wild"/>
         <meta property="og:url" content="https://blog.formallyapplied.com/2017/05/ub-in-wild/"/>
-        <meta property="og:description" content="So I was hacking an open source C++ project. The project builds using gcc v5.4 and runs without problems. Then, I grabbed gcc v6.2 to see how much performance improvement can be gained. Surprisingly, the program segfaulted …"/>
+        <meta property="og:description" content="So I was hacking an open source C++ project. The project builds using gcc v5.4 and runs without problems. Then, I grabbed gcc v6.2 to see how much performance improvement can be gained. Surprisingly, the program segfaulted ..."/>
         <meta property="article:published_time" content="2017-05-25" />
             <meta property="article:section" content="programming" />
             <meta property="article:tag" content="c++" />
@@ -34,7 +34,6 @@
     <link href="https://blog.formallyapplied.com/theme/css/solid.min.css" rel="stylesheet">
 
     <link href="https://blog.formallyapplied.com/theme/css/pygments/tango.css" rel="stylesheet">
-        <link href="https://blog.formallyapplied.com/theme/css/typogrify.css" rel="stylesheet">
     <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/style.css" type="text/css"/>
         <link href="https://blog.formallyapplied.com/fonts/inter.css" rel="stylesheet">
 
@@ -81,8 +80,8 @@
                 <h1>
                     <a href="https://blog.formallyapplied.com/2017/05/ub-in-wild/"
                        rel="bookmark"
-                       title="Permalink to Undefined behavior in the wild">
-                        Undefined behavior in the&nbsp;wild
+                       title="Permalink to Undefined behavior in the wild">
+                        Undefined behavior in the wild
                     </a>
                 </h1>
             </header>
@@ -110,32 +109,32 @@
                 </div>
                 <p>So I was hacking the code of an open source C++ project. The project builds
 using gcc v5.4 and runs without problems. Then, I grabbed gcc v6.2 to see
-how much performance improvement can it bring especially with its more updated <span class="caps">LTO</span>.
+how much performance improvement can it bring especially with its more updated LTO.
 Expectedly, the project builds without problems. However, it failed at run-time
-with a&nbsp;segfault.</p>
-<p>Actually, such an error is usually a sign of <a class="reference external" href="https://en.wikipedia.org/wiki/Undefined_behavior">Undefined Behavior</a> (<span class="caps">UB</span>)
+with a segfault.</p>
+<p>Actually, such an error is usually a sign of <a class="reference external" href="https://en.wikipedia.org/wiki/Undefined_behavior">Undefined Behavior</a> (UB)
 constructs that exists in the program. Specifically, a newer compiler (version) might be stricter
 by rejecting programs that are perfectly acceptable by an older compiler.
-However, such rejection should happen at compile time and not by causing unexpected errors at&nbsp;run-time.</p>
-<p><span class="caps">UB</span> is a known concept in C/C++ which refers to operations that have no defined semantics
+However, such rejection should happen at compile time and not by causing unexpected errors at run-time.</p>
+<p>UB is a known concept in C/C++ which refers to operations that have no defined semantics
 in the language specifications.
 Therefore, compilers do not expect such operations to happen.
-Basically, <span class="caps">UB</span> specifications constitute a &#8220;contract&#8221; that the developer needs to maintain.
+Basically, UB specifications constitute a &quot;contract&quot; that the developer needs to maintain.
 In the case of violating this contract, the compiler is basically free
 to do whatever it sees fit. This includes summoning <a class="reference external" href="https://en.wiktionary.org/wiki/nasal_demon">nasal demons</a>.</p>
-<p>In the following, I shall elaborate on this <span class="caps">UB</span> instance since it involves several interesting
-C++ concepts. My discussion, while focusing on a particular <span class="caps">UB</span> instance, can provide
-insights on the problems caused by <span class="caps">UB</span> in your code and how to avoid them.
-For more details on <span class="caps">UB</span>, I recommend John Regehr&#8217;s <a class="reference external" href="http://blog.regehr.org/archives/213">blog series</a>.</p>
+<p>In the following, I shall elaborate on this UB instance since it involves several interesting
+C++ concepts. My discussion, while focusing on a particular UB instance, can provide
+insights on the problems caused by UB in your code and how to avoid them.
+For more details on UB, I recommend John Regehr's <a class="reference external" href="http://blog.regehr.org/archives/213">blog series</a>.</p>
 <div class="section" id="identifying-the-problem">
-<h2>Identifying the&nbsp;problem</h2>
-<p>Consider the following code snippet which is a reduced version of the original <span class="caps">UB</span> instance.
+<h2>Identifying the problem</h2>
+<p>Consider the following code snippet which is a reduced version of the original UB instance.
 The developer created the templated method <code>as</code> (line 7) as a concise way to do
-dynamic casting across the class hierarchy. The code &#8220;works&#8221; after compiling it
+dynamic casting across the class hierarchy. The code &quot;works&quot; after compiling it
 with gcc v5.4 or clang v4.8. Note that a nullptr check is in place (line 24) since
 <code>snd_ptr</code> is expected to be nullptr in case <code>fst_ptr</code> was nullptr.
 Interestingly, this snippet works even when compiled with gcc v6.2 with no optimizations (-O0).
-However, it segfaults at line 22 when compiled with gcc v6.2 at optimization levels (-O1) or&nbsp;higher.</p>
+However, it segfaults at line 22 when compiled with gcc v6.2 at optimization levels (-O1) or higher.</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -186,50 +185,50 @@ However, it segfaults at line 22 when compiled with gcc v6.2 at optimization lev
     <span class="k">return</span> <span class="p">(</span><span class="n">snd_ptr</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span><span class="o">?</span> <span class="mi">0</span><span class="o">:</span> <span class="p">(</span><span class="o">*</span><span class="n">snd_ptr</span><span class="p">).</span><span class="n">bar</span><span class="p">;</span>
 <span class="p">}</span>
 </pre></div>
-</td></tr></table><p>Let&#8217;s now analyze this case a bit further. The root cause of the problem is setting
+</td></tr></table><p>Let's now analyze this case a bit further. The root cause of the problem is setting
 <code>fst_ptr</code> to <code>nullptr</code>. However, this should not cause a problem locating
-method <code>as</code> since it&#8217;s a non-virtual method.
+method <code>as</code> since it's a non-virtual method.
 Remember that the compiler can emit direct calls for non-virtual methods at compile-time.
 However, in the case of virtual methods, it needs to locate the <cite>vtable</cite> of the object
-instance at run-time. This would not be possible if the pointer to the object was&nbsp;nullptr.</p>
+instance at run-time. This would not be possible if the pointer to the object was nullptr.</p>
 <p>Having checked that method <code>as</code> is callable. We turn our attention to the dynamic
 cast inside it (line 9). Passing a nullptr to <code>dynamic_cast</code> is guaranteed
 to return nullptr according to the C++ standard §5.2.7/4:
-(thanks to this <span class="caps">SO</span> <a class="reference external" href="https://stackoverflow.com/a/5155876">answer</a>).
+(thanks to this SO <a class="reference external" href="https://stackoverflow.com/a/5155876">answer</a>).
 This suggests that in the case <code>this</code> was nullptr, method <code>as</code> must
 return nullptr also. However, things are not that easy! Actually, setting <code>this</code> to
-nullptr is <span class="caps">UB</span>. It happens that gcc v6.2 did act upon this and produced a segfault
+nullptr is UB. It happens that gcc v6.2 did act upon this and produced a segfault
 instead of calling <code>dynamic_cast</code> on a nullptr as input.
-Further, adding a check like &#8220;if (this == nullptr)&#8221; before dynamic casting
-won&#8217;t help either as compilers are free to optimize this&nbsp;check.</p>
-<p>So we detected such a toy example of <span class="caps">UB</span> using manual analysis. This manual method
+Further, adding a check like &quot;if (this == nullptr)&quot; before dynamic casting
+won't help either as compilers are free to optimize this check.</p>
+<p>So we detected such a toy example of UB using manual analysis. This manual method
 might work with smaller codebases. However, it is unlikely that it can scale to larger codebases
-or more complex cases of <span class="caps">UB</span>. Fortunately, reasoning about <span class="caps">UB</span> has been largely
-automated in recent years thanks to the <span class="caps">UB</span> sanitizers integrated into gcc and clang.
-For example, we can compile the above snippet using the following&nbsp;command,</p>
+or more complex cases of UB. Fortunately, reasoning about UB has been largely
+automated in recent years thanks to the UB sanitizers integrated into gcc and clang.
+For example, we can compile the above snippet using the following command,</p>
 <pre class="code bash literal-block">
 g++ -std<span class="o">=</span>c++11 -Wall -Wextra -Wpedantic -fsanitize<span class="o">=</span>undefined ub.cpp -o ub.out
 </pre>
 <p>Switching compiler flags to highest warning level is not critical here.
 However, it is a recommended practice. Basically, we only need to pass the flag <code>-fsanitize=undefined</code>
-in order to activate the <span class="caps">UB</span> sanitizer.
+in order to activate the UB sanitizer.
 Running the resulting executable <code>ub.out</code>, would immediately produce suitable error messages
-identifying the source of <span class="caps">UB</span> to be the call at line&nbsp;22.</p>
+identifying the source of UB to be the call at line 22.</p>
 </div>
 <div class="section" id="possible-solutions">
-<h2>Possible&nbsp;solutions</h2>
-<p>After detecting the <span class="caps">UB</span> source, the question is how to fix it?
-Well, as discussed previously, it&#8217;s the responsibility of developers to avoid
-<span class="caps">UB</span> in their code. Ideally, this means to ensure that <span class="caps">UB</span> never happens for <em>any</em> program input.
-In practice, however, we need to avoid unnecessary checks by ensuring that <span class="caps">UB</span> does not happen
-on &#8220;expected&#8221; inputs - at&nbsp;least.</p>
-<p>Translating this to our <span class="caps">UB</span> case, we can either (1) insert nullptr checks <em>before</em> calling
+<h2>Possible solutions</h2>
+<p>After detecting the UB source, the question is how to fix it?
+Well, as discussed previously, it's the responsibility of developers to avoid
+UB in their code. Ideally, this means to ensure that UB never happens for <em>any</em> program input.
+In practice, however, we need to avoid unnecessary checks by ensuring that UB does not happen
+on &quot;expected&quot; inputs - at least.</p>
+<p>Translating this to our UB case, we can either (1) insert nullptr checks <em>before</em> calling
 method <code>as</code>, (2) simply replace calls to method <code>as</code> with dynamic casts,
 or (3) convert method <code>as</code> to be static. The last option requires the least amount
 of change to the existing code which is a desirable property. Also,
 it has the advantage of maintaining the type safety of the original code.
 That is, method <code>as</code> shall accept only class <code>Base</code> or one of its derived classes as input.
-The final code after applying solution (3) will look something like the&nbsp;following,</p>
+The final code after applying solution (3) will look something like the following,</p>
 <table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
  2
  3
@@ -277,10 +276,10 @@ The final code after applying solution (3) will look something like the&nbsp;fol
 <span class="p">}</span>
 </pre></div>
 </td></tr></table><p>Finally, building portable and future-proof software in C/C++ requires paying
-attention to <span class="caps">UB</span> in your code. The availability of excellent tool support in the
-form of <span class="caps">UB</span> sanitizers, among others, has made catching <span class="caps">UB</span> significantly easier.
-It&#8217;s recommended to regularly activate <span class="caps">UB</span> sanitizers on your code
-in order to catch potential issues early and more&nbsp;often.</p>
+attention to UB in your code. The availability of excellent tool support in the
+form of UB sanitizers, among others, has made catching UB significantly easier.
+It's recommended to regularly activate UB sanitizers on your code
+in order to catch potential issues early and more often.</p>
 </div>
 
             </div>
@@ -295,7 +294,7 @@ in order to catch potential issues early and more&nbsp;often.</p>
    <div class="container">
       <hr>
       <div class="row">
-         <!-- <div class="col-xs-10">&copy; 2017 Ammar Ben Khadra -->
+         <!-- <div class="col-xs-10">&copy; 2020 Ammar Ben Khadra -->
             <div class="col-xs-10">&copy; 2017-2020 Ammar Ben Khadra
             <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,

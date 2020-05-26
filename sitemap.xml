@@ -5,30 +5,37 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.formallyapplied.com/</loc>
-<lastmod>2020-01-07T19:03:23-00:00</lastmod>
+<lastmod>2020-05-26T22:51:51-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.2</priority>
 </url>
 
 <url>
 <loc>https://blog.formallyapplied.com/archives.html</loc>
-<lastmod>2020-01-07T19:03:23-00:00</lastmod>
+<lastmod>2020-05-26T22:51:51-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.2</priority>
 </url>
 
 <url>
 <loc>https://blog.formallyapplied.com/tags.html</loc>
-<lastmod>2020-01-07T19:03:23-00:00</lastmod>
+<lastmod>2020-05-26T22:51:51-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.2</priority>
 </url>
 
 <url>
 <loc>https://blog.formallyapplied.com/categories.html</loc>
-<lastmod>2020-01-07T19:03:23-00:00</lastmod>
+<lastmod>2020-05-26T22:51:51-00:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.2</priority>
+</url>
+
+<url>
+<loc>https://blog.formallyapplied.com/2020/05/function-identification/</loc>
+<lastmod>2020-05-26T10:20:00+02:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.8</priority>
 </url>
 
 <url>
@@ -61,7 +68,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://blog.formallyapplied.com/author/ammar-ben-khadra.html</loc>
-<lastmod>2017-11-07T10:20:00+00:53</lastmod>
+<lastmod>2020-05-26T10:20:00+00:53</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.2</priority>
 </url>

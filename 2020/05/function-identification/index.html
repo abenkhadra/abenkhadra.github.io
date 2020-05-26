@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Function identification in stripped binaries revisited - Formally Applied</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.formallyapplied.com/2020/05/function-identification/">
+
+        <meta name="author" content="Ammar Ben Khadra" />
+        <meta name="keywords" content="binary analysis,reverse engineering" />
+        <meta name="description" content="In this article, I revisit the problem of function identification with two goals in mind. First, overviewing the state of the art in a systematic way. Second, discussion and quantification of the (often overlooked) role that call frame information can play as a source of function definitions." />
+
+        <meta property="og:site_name" content="Formally Applied" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Function identification in stripped binaries revisited"/>
+        <meta property="og:url" content="https://blog.formallyapplied.com/2020/05/function-identification/"/>
+        <meta property="og:description" content="In this article, I revisit the problem of function identification with two goals in mind. First, overviewing the state of the art in a systematic way. Second, discussion and quantification of the (often overlooked) role that call frame information can play as a source of function definitions."/>
+        <meta property="article:published_time" content="2020-05-26" />
+            <meta property="article:section" content="research" />
+            <meta property="article:tag" content="binary analysis" />
+            <meta property="article:tag" content="reverse engineering" />
+            <meta property="article:author" content="Ammar Ben Khadra" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/bootstrap.formally.min.css" type="text/css"/>
+    <link href="https://blog.formallyapplied.com/theme/css/fontawesome.min.css" rel="stylesheet">
+    <link href="https://blog.formallyapplied.com/theme/css/solid.min.css" rel="stylesheet">
+
+    <link href="https://blog.formallyapplied.com/theme/css/pygments/tango.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/style.css" type="text/css"/>
+        <link href="https://blog.formallyapplied.com/fonts/inter.css" rel="stylesheet">
+
+
+        <link href="https://blog.formallyapplied.com/feeds/all.rss.xml" type="application/rss+xml" rel="alternate"
+              title="Formally Applied RSS Feed"/>
+
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.formallyapplied.com/" class="navbar-brand">
+<img class="img-responsive pull-left gap-right" src="https://blog.formallyapplied.com/images/logo.svg" width="30"/> Formally Applied            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"></i>&nbsp;Archives</a></li>
+                    <li><a href="https://www.eit.uni-kl.de/eis/people/khadra/"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.formallyapplied.com/2020/05/function-identification/"
+                       rel="bookmark"
+                       title="Permalink to Function identification in stripped binaries revisited">
+                        Function identification in stripped binaries revisited
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default"></span>
+    <span class="published">
+      <i class="fas fa-calendar-alt"></i><time datetime="2020-05-26T10:20:00+02:00"> 26 May 2020</time>&nbsp;
+    </span>
+
+
+
+
+
+<i class="fas fa-tags"></i>
+	<a href="https://blog.formallyapplied.com/tag/binary-analysis.html">binary analysis</a>
+        /
+	<a href="https://blog.formallyapplied.com/tag/reverse-engineering.html">reverse engineering</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>The notion of a function is important for the modularity and scalability of program analyses. For some applications, like control-flow integrity, functions represent an indispensable abstraction. Functions are well-defined in the source code and easy to identify in non-stripped binaries. However, identifying functions in stripped binaries can be challenging.</p>
+<p>This motivated several works, including our CASES'16 <a href="https://doi.org/10.1145/2968455.2968505">paper</a>, to tackle this problem. In this article, I revisit this problem with two goals in mind. First, overviewing the state of the art in a systematic way. Second, discussion and quantification of the (often overlooked) role that call frame information can play as a source of function definitions.</p>
+<h2>What is a binary-level function?</h2>
+<p>Before delving into function identification techniques, the notion of a binary-level function needs to be defined in first place.
+Functions are well-defined constructs in the source code.
+For example, a couple of curly braces can clearly mark the scope of a function in C/C++.
+However, things are not that straightforward when we move to binary-level
+functions. Compiler optimizations such as function inlining and splitting
+can substantially alter how functions are laid out in the binary.
+This caused a discrepancy in the research community on how functions are defined.</p>
+<p>Generally, binary-level functions are  defined based on two models;
+they are the <em>contiguous</em> and <em>chunk</em> models. In the former, a function
+simply occupies a single contiguous code region. The latter model, on the other hand, aims
+for more generality by allowing a function to span multiple chunks. Each
+chunk in turn is a contiguous code region. The chunk model might be
+motivated by a need to maintain the mapping between a single source-level
+function and its corresponding chunks in the binary, which can be many. As a
+result, a single chunk might be shared between several functions. This model
+is adopted in tools like <a href="https://dl.acm.org/doi/10.1145/2931037.2931047">Dyninst</a> and <a href="https://doi.org/10.1109/EuroSP.2017.11">nucleus</a>.</p>
+<p>The contiguous model has its adopters, too. In "<a href="https://arxiv.org/abs/2004.14191">efficient binary-level coverage analysis</a>" (accepted to ESEC/FSE 2020), we show that despite its irresistible simplicity, the contiguous model is consistent with the functions
+defined in the symbol table in our large corpus of x86-64 binaries.
+Here, consistency means that we observed that two key assumptions generally hold. First, most basic blocks in the function's region are reachable from its entry (reachability). Second, functions do not target arbitrary basic blocks inside each other, rather only their respective entries (encapsulation).  Reachability and encapsulation are important properties for the modularity of program analyses that build on functions as a core abstraction.</p>
+<p>There is a twist, however. We allowed a single function to have multiple entry points. This was necessary for the accurate treatment of constructs such as C++ exceptions. In this way, we leveraged the simplicity of the contiguous model without loss in generality. That said, our discussion will only focus on this model. It defines a function by its boundaries; start and end addresses. This definition can be augmented with a set of entry and exit points which determine where control-flow can enter or leave the function respectively.</p>
+<h2>Haven’t we solved this problem yet?</h2>
+<p>Identifying functions in non-stripped binaries is straightforward; just read the
+symbol table. Therefore, our attention is focused on the more interesting case of identifying functions in stripped binaries. The techniques proposed for addressing this problem can be broadly categorized to manual pattern matching, machine learning, and CFG-based techniques.</p>
+<p>Functions prologues and epilogues often contain instructions for stack setup and
+tear down respectively.
+Manually writing heuristics for detecting such patterns is not difficult.
+For example, a heuristic that looks for the <code>push</code>es can provide a rough approximation of function starts. However, heuristics being heuristics, they can only take us so far.</p>
+<p>Pattern matching can be automated using machine learning. This research theme has been considered in several works. The beginning was with <a href="https://www.aaai.org/Papers/AAAI/2008/AAAI08-127.pdf">Rosenblum et al.</a> who leveraged conditional random fields. Other notable works include <a href="https://www.usenix.org/system/files/conference/usenixsecurity14/sec14-paper-bao.pdf">ByteWeight</a> which relies on weighted prefix trees, and <a href="https://www.usenix.org/system/files/conference/usenixsecurity15/sec15-paper-shin.pdf">Shin et al.</a> who decided to go for recurrent neural networks instead.</p>
+<p>The effectiveness of a machine learning technique is measured by its ability to generalize beyond its training set. However, modern compiler optimizations are diverse and sophisticated. Additionally, optimizations are conducted at all levels. From a single compilation unit up to whole-program link-time optimization. Add to this post-link optimization which is witnessing a recent revival like Facebook's <a href="https://dl.acm.org/doi/10.5555/3314872.3314876">BOLT</a>. All of this makes function identification by learning byte-level features quite challenging to generalize.</p>
+<p>This leaves us with CFG-based identification techniques. In our CASES'16 <a href="https://doi.org/10.1145/2968455.2968505">paper</a>, we proposed to leverage the control flow graph (CFG) to identify functions. Basically, we partition a global CFG, which is recovered after disassembly, to a call graph connecting multiple function-level CFGs. It seems that the time was ripe for such ideas. In the following year not one, but two similar CFG-based proposals were published. They are   <a href="https://doi.org/10.1109/EuroSP.2017.11">Nucleus</a> which appeared in Euro S&amp;P'17 and <a href="https://doi.org/10.1109/DSN.2017.29">Function Interface Analysis</a> in DSN'17. In the latter, the authors incorporated additional data-flow analyses.</p>
+<p>What all of these proposals have in common are the following key mechanisms:</p>
+<ul>
+<li>
+<p>Call target analysis. Collects the targets of direct calls as a first step to identify function entries.</p>
+</li>
+<li>
+<p>CFG traversal. Traverse a function's CFG to determine its end address. This is the end of the last basic block reachable from the entry.</p>
+</li>
+<li>
+<p>Tail-call target analysis. Direct jumps targeting regions outside the current function are considered tail-calls which are used to identify the entries of more functions.</p>
+</li>
+</ul>
+<p>The first mechanism is independent and can be done in one pass. The remaining two can be iteratively applied until a fix point is reached, i.e., no more function entries to discover.</p>
+<p>CFG-based identification is practical and highly accurate with consistent results across all of the aforementioned works. These results motivated <a href="https://binary.ninja/2017/11/06/architecture-agnostic-function-detection-in-binaries.html">binary ninja</a> to quickly adopt it. So can we say that the problem is now solved? I would say that it is solved to a significant extent, but certainly not entirely.</p>
+<p>The main issue here is that we rely on the ability to traverse the CFG in the second step. However, the recovered CFG might not be precise enough for our purpose. I can provide some concrete examples which might prove challenging:</p>
+<ul>
+<li>
+<p>Adjacent functions. Consider two adjacent functions A and B. The latter is either indirectly called or not called at all. A tail-call from A to B is indistinguishable in this case from a usual intra-procedural jump. Hence, both functions will be merged in a single function.</p>
+</li>
+<li>
+<p>Non-return functions. Should a function end with a call to an undetected non-return function, then it is possible to continue the CFG traversal stepping into the following function. Some non-return functions are well-known like <code>exit</code> and <code>abort</code>. However, detecting non-return functions generally requires analyzing the call-graph. However, building the call-graph depends in turn on having function definitions already. This leads to a cyclical dependency.</p>
+</li>
+<li>
+<p>Inter-procedural conditionals. Compilers never fail to surprise especially when it comes to undefined behavior. Consider the implementation of <code>llvm_unreachable</code> (see <a href="https://llvm.org/docs/ProgrammersManual.html">LLVM programmer's manual</a>). In a debug build, it will print an error message and terminate with a call to <code>abort</code>. All good so far. In a release build, however, it will hint to the compiler that there is no need to generate code since reaching such a statement is undefined behavior. In this case, the compiler might decide to emit a conditional jump at the end of the function which if not satisfied, will branch into the next function, whatever that is. We do not have access to such hints in the binary which can lead us to continue the CFG traversal.</p>
+</li>
+</ul>
+<p>Of course, this list is by no means exhaustive. Also, issues can coincide to further complicate matters. For example, having too many indirect calls in the binary which might reduce the quality of the call target analysis in the first step. Nevertheless, I think that, in practice, it is safe to expect CFG-based identification to be able to recover well over 90% of the functions.</p>
+<h2>Are stripped binaries really stripped?</h2>
+<p>We looked at function identification assuming that if the symbol table is stripped, then we have no alternative but to analyze the binary itself. This assumption might have been valid in the old days of <code>ebp</code> based stack unwinding in x86. However, it is generally not valid anymore in x86-64, or perhaps other ISAs for that matter.</p>
+<p>Nowadays, call frame information (CFI) records are embedded in the majority of commercial off-the-shelf binaries. They are the basis of the modern stack unwinding mechanism used in C++ exception handling. However, there are several good reasons for including CFI records in C programs as well like generating backtraces. This SO <a href="https://stackoverflow.com/a/26302715">answer</a> provides more examples.</p>
+<p>CFI records can be found in the <code>eh_frame</code> section which is part of the loadable binary image. You can dump them using something like,</p>
+<div class="highlight"><pre><span></span>$ readelf --debug-dump<span class="o">=</span>frames /bin/ls
+</pre></div>
+
+
+<p>The output shows some Common Information Entry (CIE) records encapsulating many Frame Description Entry (FDE) records like the one in this example,</p>
+<div class="highlight"><pre><span></span><span class="err">00000048 0000000000000024 0000001c FDE cie=00000030 pc=0000000000003770..0000000000003e70</span>
+<span class="err">  DW_CFA_def_cfa_offset: 16</span>
+<span class="err">  DW_CFA_advance_loc: 6 to 0000000000003776</span>
+<span class="err">  DW_CFA_def_cfa_offset: 24</span>
+<span class="err">  DW_CFA_advance_loc: 10 to 0000000000003780</span>
+<span class="err">  DW_CFA_def_cfa_expression (DW_OP_breg7 (rsp): 8; DW_OP_breg16 (rip): 0; DW_OP_lit15; DW_OP_and; DW_OP_lit11; DW_OP_ge; DW_OP_lit3; DW_OP_shl; DW_OP_plus)</span>
+<span class="err">  DW_CFA_nop</span>
+<span class="err">  DW_CFA_nop</span>
+<span class="err">  DW_CFA_nop</span>
+<span class="err">  DW_CFA_nop</span>
+</pre></div>
+
+
+<p>This FDE record defines a function in the region from <code>pc=0000000000003770</code> to <code>0000000000003e70</code> which are start and end addresses respectively. This is the only bit of information of concern to us. The cryptic expressions prefixed with <code>DW_</code> can be used by a debugger like <code>gdb</code> to restore register values during stack unwinding.</p>
+<p>I move now to do some hands-on experimentation with CFI records. My goal is to first quantify the existence of the <code>.eh_frame</code> section in practice. More important, to see to what extent the functions defined in <code>.eh_frame</code> section are complete. After all, an <code>.eh_frame</code> with only a handful of function definitions is not that useful. Note the developers might deliberately omit CFI records of some functions to save space.</p>
+<p>For this experiment which was conducted on a typical Ubuntu 18.04 installation, I searched all default executable and library paths, like <code>/usr/bin</code> and <code>/lib</code>, looking for ELF binaries.
+I managed to find 5,538 ELF binaries in total. An <code>.eh_frame</code> section did exist in <em>all</em> of those binaries. Having established the existence of function definitions, the question is now to what extent are they complete?</p>
+<p>In order to measure the completeness of functions defined in the <code>.eh_frame</code>, I sum their sizes and then divide that sum by the size of the <code>.text</code> section. I exclude the few functions located in other sections. The result is a metric that I will refer to as function coverage ratio. Intuitively, a coverage ratio of 100% means that all code in <code>.text</code> lies within functions defined already, i.e., more functions can not exist. However, data bytes are often embedded in the <code>.text</code> section. For example, padding bytes which are used to align function starts. Therefore, a ratio greater than 95% can be deemed to achieve full coverage.</p>
+<p>The distribution of the coverage ratio for this dataset is depicted below.
+About 400 binaries have a coverage ratio of less than 5%. Many of which have empty <code>.eh_frame</code> sections with no FDEs at all. On the other hand, we have a comfortable majority of about 4,000 binaries (72% of total) with coverage ratio of more than 90%.</p>
+<figure>
+<img src="/images/funct-ident1.png"
+     alt="Distribution of all binaries"
+     width="450px"
+     class="center"
+     style="text-align:center; display: block; margin-left: auto; margin-right: auto;">
+  <figcaption>Distribution of coverage ratio for functions defined in the .eh_frame section. The dataset consists of 5,538 ELF binaries found in the default paths of a typical Ubuntu 18.04 installation.  </figcaption>
+</figure>
+
+<p>My dataset is somewhat comprehensive but not necessarily representative of the binaries that are "relevant". In order to obtain a more representative dataset, I omitted system binaries found in the paths <code>/usr/lib/syslinux</code>, <code>/usr/lib/klibc</code>, and <code>/usr/lib/debug/</code>. I also omitted smaller binaries which have a <code>.text</code> section of size less than 4KB. This results in a dataset of 3,574 binaries that I deemed to be "relevant”.</p>
+<p>The coverage ratio distribution is now quite different as shown in the figure below. The overall trend is clear. CFI records are mostly complete in larger user-space binaries. Admittedly, relevance here is a subjective criteria.</p>
+<figure>
+<img src="/images/funct-ident2.png"
+     alt="Distributions of relevant binaries"
+     width="450px"
+     class="center"
+     style="text-align:center; display: block; margin-left: auto; margin-right: auto;">
+  <figcaption>Distribution of coverage ratio for functions defined in the .eh_frame section. This is a subset of the original dataset consisting of 3,574 ELF binaries that are deemed to be "relevant". </figcaption>
+</figure>
+
+<h2>Conclusion</h2>
+<p>I will simply conclude with a short, cookbook style, recommendation. Look for CFI records, if available, and measure their function coverage ratio. If the ratio is insufficient for your application, then add to the mix one (or more) of the CFG-based mechanisms. Be cautious about CFG imprecision as it might introduce issues during traversal.</p>
+<p><em>I'm interested in your take on this piece. Please reach out by opening an issue in this <a href="https://github.com/abenkhadra/abenkhadra.github.io">repository</a></em></p>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <!-- <div class="col-xs-10">&copy; 2020 Ammar Ben Khadra -->
+            <div class="col-xs-10">&copy; 2017-2020 Ammar Ben Khadra
+            <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> -->         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.formallyapplied.com/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.formallyapplied.com/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.formallyapplied.com/theme/js/respond.min.js"></script>
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-58845389-3']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>

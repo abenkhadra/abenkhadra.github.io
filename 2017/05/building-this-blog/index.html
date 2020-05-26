@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
-    <title>Building this blog - Formally Applied</title>
+    <title>Building this blog - Formally Applied</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -13,13 +13,13 @@
 
         <meta name="author" content="Ammar Ben Khadra" />
         <meta name="keywords" content="blogging" />
-        <meta name="description" content="Details about the tools and services used in building this blog. Also, some discussion about the design rationale behind it." />
+        <meta name="description" content="Details about the tools and services used in building this blog. Also, some discussion about the design rationale behind it." />
 
         <meta property="og:site_name" content="Formally Applied" />
         <meta property="og:type" content="article"/>
-        <meta property="og:title" content="Building this blog"/>
+        <meta property="og:title" content="Building this blog"/>
         <meta property="og:url" content="https://blog.formallyapplied.com/2017/05/building-this-blog/"/>
-        <meta property="og:description" content="Details about the tools and services used in building this blog. Also, some discussion about the design rationale behind it."/>
+        <meta property="og:description" content="Details about the tools and services used in building this blog. Also, some discussion about the design rationale behind it."/>
         <meta property="article:published_time" content="2017-05-04" />
             <meta property="article:section" content="misc" />
             <meta property="article:tag" content="blogging" />
@@ -32,7 +32,6 @@
     <link href="https://blog.formallyapplied.com/theme/css/solid.min.css" rel="stylesheet">
 
     <link href="https://blog.formallyapplied.com/theme/css/pygments/tango.css" rel="stylesheet">
-        <link href="https://blog.formallyapplied.com/theme/css/typogrify.css" rel="stylesheet">
     <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/style.css" type="text/css"/>
         <link href="https://blog.formallyapplied.com/fonts/inter.css" rel="stylesheet">
 
@@ -79,8 +78,8 @@
                 <h1>
                     <a href="https://blog.formallyapplied.com/2017/05/building-this-blog/"
                        rel="bookmark"
-                       title="Permalink to Building this blog">
-                        Building this&nbsp;blog
+                       title="Permalink to Building this blog">
+                        Building this blog
                     </a>
                 </h1>
             </header>
@@ -103,51 +102,51 @@
 </footer><!-- /.post-info -->                    </div>
                 </div>
                 <div class="section" id="in-a-nutshell">
-<h2>In a&nbsp;nutshell</h2>
+<h2>In a nutshell</h2>
 <p>This blog is powered by <a class="reference external" href="https://blog.getpelican.com/">Pelican</a> using
 <a class="reference external" href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3">pelican-bootstrap3</a>
-theme. It&#8217;s hosted on <a class="reference external" href="https://pages.github.com/">Github Pages</a>.  Content distribution
-and <span class="caps">TLS</span> encryption are powered by <a class="reference external" href="https://www.cloudflare.com">CloudFlare</a>.
+theme. It's hosted on <a class="reference external" href="https://pages.github.com/">Github Pages</a>.  Content distribution
+and TLS encryption are powered by <a class="reference external" href="https://www.cloudflare.com">CloudFlare</a>.
 In terms of cost, I had to pay only for the domain name registration.
 A template of this blog is provided <a class="reference external" href="https://github.com/abenkhadra/formallyapplied.template">here</a>.
 Basically, you only need to <a class="reference external" href="http://docs.getpelican.com/en/3.7.1/install.html">install pelican</a>
-and you should be able of getting the template up and running in a matter of&nbsp;minutes.</p>
+and you should be able of getting the template up and running in a matter of minutes.</p>
 </div>
 <div class="section" id="design-options">
-<h2>Design&nbsp;options</h2>
+<h2>Design options</h2>
 <p>If you are interested in the alternative options considered when building this
-blog then please read&nbsp;on.</p>
+blog then please read on.</p>
 <ul class="simple">
 <li><strong>Static or dynamic blog</strong>. This decision effectively means choosing between
-<a class="reference external" href="https://www.wordpress.com">Wordpress</a> and a Static Site Generator (<span class="caps">SSG</span>). I won&#8217;t
+<a class="reference external" href="https://www.wordpress.com">Wordpress</a> and a Static Site Generator (SSG). I won't
 delve into a detailed comparison here. Quick googling should give you a sufficient idea.
 Bottom line is that if you have a limited set of requirements - similar to my case -
 then I recommend going for a static website.
 Basically, it allows you to focus on your content and largely forget about
-issues related to maintenance, security, and&nbsp;performance.</li>
-<li><strong>Choosing an <span class="caps">SSG</span></strong>. There are plenty of SSGs around on <a class="reference external" href="https://www.staticgen.com">staticgen</a>.
+issues related to maintenance, security, and performance.</li>
+<li><strong>Choosing an SSG</strong>. There are plenty of SSGs around on <a class="reference external" href="https://www.staticgen.com">staticgen</a>.
 What ended up on my shortlist are Jekyll, Hugo, and Pelican. Jekyll is unquestionably
 the most popular and is the one endorsed by GitHub. Also,
-I read some nice things about Hugo particularly regarding its speed. However, I haven&#8217;t
+I read some nice things about Hugo particularly regarding its speed. However, I haven't
 tried any of them, to be honest, and went directly for Pelican due to these reasons;
-First, it is written in Python. I&#8217;m learning Python already and this helps
+First, it is written in Python. I'm learning Python already and this helps
 me have more consolidation around its ecosystem. Second, Pelican comes with native
 support for restructuredText which has several
 <a class="reference external" href="http://eli.thegreenplace.net/2017/restructuredtext-vs-markdown-for-technical-documentation/">advantages</a>
-over&nbsp;Markdown.</li>
+over Markdown.</li>
 <li><strong>Blog theme</strong>. Fortunately, Pelican has a lot of <a class="reference external" href="http://www.pelicanthemes.com/">themes</a>
 to choose from. I ended up choosing <em>pelican-bootstrap3</em>. This theme supports
 Booststrap (that is easy to guess!) and its corresponding <a class="reference external" href="https://bootswatch.com/">bootswatch</a> themes.
-Then, I customized my own bootswatch sub-theme which is named &#8220;formally&#8221; based on the Sandstone sub-theme.
+Then, I customized my own bootswatch sub-theme which is named &quot;formally&quot; based on the Sandstone sub-theme.
 In this regard, I tried to follow some rules like the ones found
 <a class="reference external" href="https://spark.adobe.com/blog/2017/01/30/13-rules-to-help-you-stop-making-bad-font-choices/">here</a>
 and <a class="reference external" href="https://designschool.canva.com/blog/design-rules//">here</a>.
-These rules seem to summarize sensible&nbsp;wisdom.</li>
+These rules seem to summarize sensible wisdom.</li>
 </ul>
 <p>Finally, in order to apply your own customization to the provided template,
 consider using <a class="reference external" href="https://developers.google.com/web/tools/setup/setup-workflow">Map to Network Resource</a>
 which is a feature available in Chrome. This feature helps
-you iterate quickly and thus saves you a lot of time in the&nbsp;process</p>
+you iterate quickly and thus saves you a lot of time in the process</p>
 </div>
 
             </div>
@@ -162,7 +161,7 @@ you iterate quickly and thus saves you a lot of time in the&nbsp;process</p>
    <div class="container">
       <hr>
       <div class="row">
-         <!-- <div class="col-xs-10">&copy; 2017 Ammar Ben Khadra -->
+         <!-- <div class="col-xs-10">&copy; 2020 Ammar Ben Khadra -->
             <div class="col-xs-10">&copy; 2017-2020 Ammar Ben Khadra
             <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
