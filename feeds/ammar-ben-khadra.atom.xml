@@ -1,5 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Formally Applied - Ammar Ben Khadra</title><link href="https://blog.formallyapplied.com/" rel="alternate"></link><link href="https://blog.formallyapplied.com/feeds/ammar-ben-khadra.atom.xml" rel="self"></link><id>https://blog.formallyapplied.com/</id><updated>2020-05-26T10:20:00+02:00</updated><entry><title>Function identification in stripped binaries revisited</title><link href="https://blog.formallyapplied.com/2020/05/function-identification/" rel="alternate"></link><published>2020-05-26T10:20:00+02:00</published><updated>2020-05-26T10:20:00+02:00</updated><author><name>Ammar Ben Khadra</name></author><id>tag:blog.formallyapplied.com,2020-05-26:/2020/05/function-identification/</id><summary type="html">&lt;p&gt;In this article, I revisit the problem of function identification  with two goals in mind. First, overviewing the state of the art in a systematic way. Second, discussion and quantification of the (often overlooked) role that call frame information can play as a source of function definitions.&lt;/p&gt;</summary><content type="html">&lt;p&gt;The notion of a function is important for the modularity and scalability of program analyses. For some applications, like control-flow integrity, functions represent an indispensable abstraction. Functions are well-defined in the source code and easy to identify in non-stripped binaries. However, identifying functions in stripped binaries can be challenging.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Formally Applied - Ammar Ben Khadra</title><link href="https://blog.formallyapplied.com/" rel="alternate"></link><link href="https://blog.formallyapplied.com/feeds/ammar-ben-khadra.atom.xml" rel="self"></link><id>https://blog.formallyapplied.com/</id><updated>2020-06-16T10:20:00+02:00</updated><entry><title>Visualizing program graphs using bcov</title><link href="https://blog.formallyapplied.com/2020/06/bcov-program-graphs/" rel="alternate"></link><published>2020-06-16T10:20:00+02:00</published><updated>2020-06-16T10:20:00+02:00</updated><author><name>Ammar Ben Khadra</name></author><id>tag:blog.formallyapplied.com,2020-06-16:/2020/06/bcov-program-graphs/</id><summary type="html">&lt;p&gt;A couple of weeks ago, we released &lt;strong&gt;bcov&lt;/strong&gt;, a tool for efficient binary-level coverage analysis via static instrumentation. The tool supported only two operation modes, namely, patching and coverage reporting. Today, we add another operation mode that dumps various program graphs, like the CFG and dominator trees, for a given function in the binary. This article describes these graphs in more detail.&lt;/p&gt;</summary><content type="html">&lt;p&gt;A couple of weeks ago, we released &lt;a href="https://github.com/abenkhadra/bcov"&gt;bcov&lt;/a&gt;, a tool for efficient binary-level coverage analysis via static instrumentation. The tool supported only two operation modes, namely, patching and coverage reporting. Today, we add another operation mode that dumps various program graphs, like the CFG and dominator trees, for a given function in the binary.&lt;/p&gt;
+&lt;p&gt;This neat feature can be useful in its own right. For example, we heavily relied on visualizing these graphs at various stages during the development of &lt;strong&gt;bcov&lt;/strong&gt; itself. In this article, we first show how this mode can be used and then describe the generated program graphs.&lt;/p&gt;
+&lt;h2&gt;Usage example&lt;/h2&gt;
+&lt;p&gt;Consider the binary &lt;code&gt;gas&lt;/code&gt; which is distributed together with our &lt;a href="https://github.com/abenkhadra/bcov-artifacts/tree/master/sample-binaries"&gt;sample binaries&lt;/a&gt;.
+For the sake of example, we will choose the function &lt;code&gt;string_prepend.part.5&lt;/code&gt;.
+It is small but still contains an interesting number of basic blocks.
+To dump its program graphs, you can simply issue,&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;bcov -m dump -i gas -f &lt;span class="s2"&gt;&amp;quot;string_prepend.part.5&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This command should produce five DOT files in your current directory.
+To visualize these files, we recommend the interactive viewer &lt;code&gt;xdot&lt;/code&gt;.
+The raw DOT files are provided &lt;a href="/docs/prog_graphs.zip"&gt;here&lt;/a&gt; for convenience.
+They are named after the address of the selected function as follows:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;func_4e6070.cfg.dot. The CFG of the function.&lt;/li&gt;
+&lt;li&gt;func_4e6070.rev.cfg.dot. Similar to the CFG but with all edges reversed.&lt;/li&gt;
+&lt;li&gt;func_4e6070.pre.dom.dot. Predominator tree.        &lt;/li&gt;
+&lt;li&gt;func_4e6070.post.dom.dot. Postdominator tree.   &lt;/li&gt;
+&lt;li&gt;func_4e6070.sb.dom.dot. Superblock dominator graph.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The first two graphs are probably familiar to you already. However, understanding the remaining graphs might require further reading. The definitive resource is the original &lt;a href="https://dl.acm.org/doi/10.1145/174675.175935"&gt;work&lt;/a&gt; that we implemented in &lt;strong&gt;bcov&lt;/strong&gt;.
+However, the summary provided in section 3 of our &lt;a href="https://arxiv.org/pdf/2004.14191.pdf"&gt;paper&lt;/a&gt; should be sufficient.&lt;/p&gt;
+&lt;h2&gt;Graphs described&lt;/h2&gt;
+&lt;p&gt;We start with the CFG below. Each basic block is marked with its address (address of first instruction) and a unique identifier within the function.
+Unconditional edges are blue colored. Conditional edges can be either green for the taken edge or red for the fall-through edge.&lt;/p&gt;
+&lt;figure&gt;
+&lt;img src="/images/func4e6070-cfg.png"
+     alt="Control flow graph"
+     width="400px"
+     class="center"
+     style="text-align:center; display: block; margin-left: auto; margin-right: auto;"&gt;
+  &lt;figcaption&gt; CFG of function 'string_prepend.part.5'. Each basic block is marked with its address and a unique identifier (idx). &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;We move to the predominator tree. It is rooted in the virtual entry node. An edge between basic blocks A -&amp;gt; B means that A predominates B.
+Simply put, B can not be visited without first visiting A. For example, BB&lt;sub&gt;8&lt;/sub&gt; (i.e., it has idx 8) must be visited before visiting BB&lt;sub&gt;9&lt;/sub&gt;.
+This dominance relationship enables us to substantially reduce the required number of instrumentation probes since covering a particular BB implies that &lt;em&gt;all&lt;/em&gt; of its predecessors in the predominator tree are also covered.&lt;/p&gt;
+&lt;figure&gt;
+&lt;img src="/images/func4e6070-predom.png"
+     alt="Predominator tree"
+     width="670px"
+     class="center"
+     style="text-align:center; display: block; margin-left: auto; margin-right: auto;"&gt;
+  &lt;figcaption&gt; Predominator tree of function 'string_prepend.part.5'. Basic blocks with idx 10 and 11 are the virtual entry and exit respectively. &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;The predominator tree is useful but we can still do better. First, we merge the predominator and postdominator trees in a dominator graph. Then, we identify the strongly-connected components (SCCs) in the latter graph to construct the superblock dominator graph (SDG). Each SCC represents a superblock that contains at least one basic block as shown below.&lt;/p&gt;
+&lt;figure&gt;
+&lt;img src="/images/func4e6070-sbdom.png"
+     alt="Superblock dominator graph"
+     width="230px"
+     class="center"
+     style="text-align:center; display: block; margin-left: auto; margin-right: auto;"&gt;
+  &lt;figcaption&gt; Superblock dominator graph (SDG) of function 'string_prepend.part.5'. Every superblock has a unique identifier (idx) and contains the identifiers of its corresponding basic blocks. Similar to dominator trees, covering a node implies that all of its predecessors are also covered.
+&lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;The instrumentation policies implemented in &lt;strong&gt;bcov&lt;/strong&gt; are based on the resulting SDG.
+In the leaf-node policy, we only instrument the leaf nodes of the SDG (light-blue colored), namely, SB&lt;sub&gt;1&lt;/sub&gt; and SB&lt;sub&gt;2&lt;/sub&gt;.
+SB&lt;sub&gt;1&lt;/sub&gt; consists of a single basic block, BB&lt;sub&gt;2&lt;/sub&gt;. However, SB&lt;sub&gt;2&lt;/sub&gt; offers more flexibility to choose between BB&lt;sub&gt;6&lt;/sub&gt; and BB&lt;sub&gt;7&lt;/sub&gt;.
+We leverage this flexibility in &lt;strong&gt;bcov&lt;/strong&gt; to select the BB that incurs minimal overhead.&lt;/p&gt;
+&lt;p&gt;A test suite that covers all leaf nodes would also achieve 100% code coverage.
+Should you insist on a coverage target that ambitious, then the leaf-node policy is all that you need.
+However, engineers in practice will have to make compromises since software testing is costly.
+Additionally, a test suite achieving 100% code coverage is not necessarily more effective (i.e., detects more bugs) than a test suite that achieves, for example, only 80% coverage.&lt;/p&gt;
+&lt;p&gt;In such settings, the leaf-node policy might not be adequate since it may lose coverage data.
+The problem is that some superblocks might be visited in the CFG while bypassing all of their children in the SDG.
+We refer to such superblocks as &lt;em&gt;critical&lt;/em&gt;. They are orange-colored by &lt;strong&gt;bcov&lt;/strong&gt; like SB&lt;sub&gt;3&lt;/sub&gt;.&lt;/p&gt;
+&lt;p&gt;The any-node policy solves this problem by instrumenting critical superblocks, in addition to the leaf superblocks instrumented in the leaf-node policy.
+That is, &lt;strong&gt;bcov&lt;/strong&gt; would instrument one additional BB among the four in SB&lt;sub&gt;3&lt;/sub&gt;.
+You can check that for &lt;em&gt;any&lt;/em&gt; input, it is now possible to precisely identify the set of covered basic blocks in function 'string_prepend.part.5'.
+Such precision would require instrumenting only 3 BBs among a total of 10 BBs in this particular function.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;I'm interested in your take on this piece. Please reach out by opening an issue in this &lt;a href="https://github.com/abenkhadra/abenkhadra.github.io"&gt;repository&lt;/a&gt;&lt;/em&gt;.&lt;/p&gt;</content><category term="research"></category><category term="binary analysis"></category><category term="reverse engineering"></category></entry><entry><title>Function identification in stripped binaries revisited</title><link href="https://blog.formallyapplied.com/2020/05/function-identification/" rel="alternate"></link><published>2020-05-26T10:20:00+02:00</published><updated>2020-05-26T10:20:00+02:00</updated><author><name>Ammar Ben Khadra</name></author><id>tag:blog.formallyapplied.com,2020-05-26:/2020/05/function-identification/</id><summary type="html">&lt;p&gt;In this article, I revisit the problem of function identification  with two goals in mind. First, overviewing the state of the art in a systematic way. Second, discussion and quantification of the (often overlooked) role that call frame information can play as a source of function definitions.&lt;/p&gt;</summary><content type="html">&lt;p&gt;The notion of a function is important for the modularity and scalability of program analyses. For some applications, like control-flow integrity, functions represent an indispensable abstraction. Functions are well-defined in the source code and easy to identify in non-stripped binaries. However, identifying functions in stripped binaries can be challenging.&lt;/p&gt;
 &lt;p&gt;This motivated several works, including our CASES'16 &lt;a href="https://doi.org/10.1145/2968455.2968505"&gt;paper&lt;/a&gt;, to tackle this problem. In this article, I revisit this problem with two goals in mind. First, overviewing the state of the art in a systematic way. Second, discussion and quantification of the (often overlooked) role that call frame information can play as a source of function definitions.&lt;/p&gt;
 &lt;h2&gt;What is a binary-level function?&lt;/h2&gt;
 &lt;p&gt;Before delving into function identification techniques, the notion of a binary-level function needs to be defined in first place.

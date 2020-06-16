@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Visualizing program graphs using bcov - Formally Applied</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="https://blog.formallyapplied.com/2020/06/bcov-program-graphs/">
+
+        <meta name="author" content="Ammar Ben Khadra" />
+        <meta name="keywords" content="binary analysis,reverse engineering" />
+        <meta name="description" content="A couple of weeks ago, we released bcov, a tool for efficient binary-level coverage analysis via static instrumentation. The tool supported only two operation modes, namely, patching and coverage reporting. Today, we add another operation mode that dumps various program graphs, like the CFG and dominator trees, for a given function in the binary. This article describes these graphs in more detail." />
+
+        <meta property="og:site_name" content="Formally Applied" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Visualizing program graphs using bcov"/>
+        <meta property="og:url" content="https://blog.formallyapplied.com/2020/06/bcov-program-graphs/"/>
+        <meta property="og:description" content="A couple of weeks ago, we released bcov, a tool for efficient binary-level coverage analysis via static instrumentation. The tool supported only two operation modes, namely, patching and coverage reporting. Today, we add another operation mode that dumps various program graphs, like the CFG and dominator trees, for a given function in the binary. This article describes these graphs in more detail."/>
+        <meta property="article:published_time" content="2020-06-16" />
+            <meta property="article:section" content="research" />
+            <meta property="article:tag" content="binary analysis" />
+            <meta property="article:tag" content="reverse engineering" />
+            <meta property="article:author" content="Ammar Ben Khadra" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/bootstrap.formally.min.css" type="text/css"/>
+    <link href="https://blog.formallyapplied.com/theme/css/fontawesome.min.css" rel="stylesheet">
+    <link href="https://blog.formallyapplied.com/theme/css/solid.min.css" rel="stylesheet">
+
+    <link href="https://blog.formallyapplied.com/theme/css/pygments/tango.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://blog.formallyapplied.com/theme/css/style.css" type="text/css"/>
+        <link href="https://blog.formallyapplied.com/fonts/inter.css" rel="stylesheet">
+
+
+        <link href="https://blog.formallyapplied.com/feeds/all.rss.xml" type="application/rss+xml" rel="alternate"
+              title="Formally Applied RSS Feed"/>
+
+
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="https://blog.formallyapplied.com/" class="navbar-brand">
+<img class="img-responsive pull-left gap-right" src="https://blog.formallyapplied.com/images/logo.svg" width="30"/> Formally Applied            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"></i>&nbsp;Archives</a></li>
+                    <li><a href="https://www.eit.uni-kl.de/eis/people/khadra/"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="https://blog.formallyapplied.com/2020/06/bcov-program-graphs/"
+                       rel="bookmark"
+                       title="Permalink to Visualizing program graphs using bcov">
+                        Visualizing program graphs using bcov
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default"></span>
+    <span class="published">
+      <i class="fas fa-calendar-alt"></i><time datetime="2020-06-16T10:20:00+02:00"> 16 Jun 2020</time>&nbsp;
+    </span>
+
+
+
+
+
+<i class="fas fa-tags"></i>
+	<a href="https://blog.formallyapplied.com/tag/binary-analysis.html">binary analysis</a>
+        /
+	<a href="https://blog.formallyapplied.com/tag/reverse-engineering.html">reverse engineering</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>A couple of weeks ago, we released <a href="https://github.com/abenkhadra/bcov">bcov</a>, a tool for efficient binary-level coverage analysis via static instrumentation. The tool supported only two operation modes, namely, patching and coverage reporting. Today, we add another operation mode that dumps various program graphs, like the CFG and dominator trees, for a given function in the binary.</p>
+<p>This neat feature can be useful in its own right. For example, we heavily relied on visualizing these graphs at various stages during the development of <strong>bcov</strong> itself. In this article, we first show how this mode can be used and then describe the generated program graphs.</p>
+<h2>Usage example</h2>
+<p>Consider the binary <code>gas</code> which is distributed together with our <a href="https://github.com/abenkhadra/bcov-artifacts/tree/master/sample-binaries">sample binaries</a>.
+For the sake of example, we will choose the function <code>string_prepend.part.5</code>.
+It is small but still contains an interesting number of basic blocks.
+To dump its program graphs, you can simply issue,</p>
+<div class="highlight"><pre><span></span>bcov -m dump -i gas -f <span class="s2">&quot;string_prepend.part.5&quot;</span>
+</pre></div>
+
+
+<p>This command should produce five DOT files in your current directory.
+To visualize these files, we recommend the interactive viewer <code>xdot</code>.
+The raw DOT files are provided <a href="/docs/prog_graphs.zip">here</a> for convenience.
+They are named after the address of the selected function as follows:</p>
+<ul>
+<li>func_4e6070.cfg.dot. The CFG of the function.</li>
+<li>func_4e6070.rev.cfg.dot. Similar to the CFG but with all edges reversed.</li>
+<li>func_4e6070.pre.dom.dot. Predominator tree.        </li>
+<li>func_4e6070.post.dom.dot. Postdominator tree.   </li>
+<li>func_4e6070.sb.dom.dot. Superblock dominator graph.</li>
+</ul>
+<p>The first two graphs are probably familiar to you already. However, understanding the remaining graphs might require further reading. The definitive resource is the original <a href="https://dl.acm.org/doi/10.1145/174675.175935">work</a> that we implemented in <strong>bcov</strong>.
+However, the summary provided in section 3 of our <a href="https://arxiv.org/pdf/2004.14191.pdf">paper</a> should be sufficient.</p>
+<h2>Graphs described</h2>
+<p>We start with the CFG below. Each basic block is marked with its address (address of first instruction) and a unique identifier within the function.
+Unconditional edges are blue colored. Conditional edges can be either green for the taken edge or red for the fall-through edge.</p>
+<figure>
+<img src="/images/func4e6070-cfg.png"
+     alt="Control flow graph"
+     width="400px"
+     class="center"
+     style="text-align:center; display: block; margin-left: auto; margin-right: auto;">
+  <figcaption> CFG of function 'string_prepend.part.5'. Each basic block is marked with its address and a unique identifier (idx). </figcaption>
+</figure>
+
+<p>We move to the predominator tree. It is rooted in the virtual entry node. An edge between basic blocks A -&gt; B means that A predominates B.
+Simply put, B can not be visited without first visiting A. For example, BB<sub>8</sub> (i.e., it has idx 8) must be visited before visiting BB<sub>9</sub>.
+This dominance relationship enables us to substantially reduce the required number of instrumentation probes since covering a particular BB implies that <em>all</em> of its predecessors in the predominator tree are also covered.</p>
+<figure>
+<img src="/images/func4e6070-predom.png"
+     alt="Predominator tree"
+     width="670px"
+     class="center"
+     style="text-align:center; display: block; margin-left: auto; margin-right: auto;">
+  <figcaption> Predominator tree of function 'string_prepend.part.5'. Basic blocks with idx 10 and 11 are the virtual entry and exit respectively. </figcaption>
+</figure>
+
+<p>The predominator tree is useful but we can still do better. First, we merge the predominator and postdominator trees in a dominator graph. Then, we identify the strongly-connected components (SCCs) in the latter graph to construct the superblock dominator graph (SDG). Each SCC represents a superblock that contains at least one basic block as shown below.</p>
+<figure>
+<img src="/images/func4e6070-sbdom.png"
+     alt="Superblock dominator graph"
+     width="230px"
+     class="center"
+     style="text-align:center; display: block; margin-left: auto; margin-right: auto;">
+  <figcaption> Superblock dominator graph (SDG) of function 'string_prepend.part.5'. Every superblock has a unique identifier (idx) and contains the identifiers of its corresponding basic blocks. Similar to dominator trees, covering a node implies that all of its predecessors are also covered.
+</figcaption>
+</figure>
+
+<p>The instrumentation policies implemented in <strong>bcov</strong> are based on the resulting SDG.
+In the leaf-node policy, we only instrument the leaf nodes of the SDG (light-blue colored), namely, SB<sub>1</sub> and SB<sub>2</sub>.
+SB<sub>1</sub> consists of a single basic block, BB<sub>2</sub>. However, SB<sub>2</sub> offers more flexibility to choose between BB<sub>6</sub> and BB<sub>7</sub>.
+We leverage this flexibility in <strong>bcov</strong> to select the BB that incurs minimal overhead.</p>
+<p>A test suite that covers all leaf nodes would also achieve 100% code coverage.
+Should you insist on a coverage target that ambitious, then the leaf-node policy is all that you need.
+However, engineers in practice will have to make compromises since software testing is costly.
+Additionally, a test suite achieving 100% code coverage is not necessarily more effective (i.e., detects more bugs) than a test suite that achieves, for example, only 80% coverage.</p>
+<p>In such settings, the leaf-node policy might not be adequate since it may lose coverage data.
+The problem is that some superblocks might be visited in the CFG while bypassing all of their children in the SDG.
+We refer to such superblocks as <em>critical</em>. They are orange-colored by <strong>bcov</strong> like SB<sub>3</sub>.</p>
+<p>The any-node policy solves this problem by instrumenting critical superblocks, in addition to the leaf superblocks instrumented in the leaf-node policy.
+That is, <strong>bcov</strong> would instrument one additional BB among the four in SB<sub>3</sub>.
+You can check that for <em>any</em> input, it is now possible to precisely identify the set of covered basic blocks in function 'string_prepend.part.5'.
+Such precision would require instrumenting only 3 BBs among a total of 10 BBs in this particular function.</p>
+<p><em>I'm interested in your take on this piece. Please reach out by opening an issue in this <a href="https://github.com/abenkhadra/abenkhadra.github.io">repository</a></em>.</p>
+            </div>
+            <!-- /.entry-content -->
+        </article>
+    </section>
+
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <!-- <div class="col-xs-10">&copy; 2020 Ammar Ben Khadra -->
+            <div class="col-xs-10">&copy; 2017-2020 Ammar Ben Khadra
+            <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> -->         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="https://blog.formallyapplied.com/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="https://blog.formallyapplied.com/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="https://blog.formallyapplied.com/theme/js/respond.min.js"></script>
+
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-58845389-3']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>
