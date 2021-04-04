@@ -60,7 +60,7 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
                     <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"></i>&nbsp;Archives</a></li>
-                    <li><a href="https://www.eit.uni-kl.de/eis/people/khadra/"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
+                    <li><a href="/pages/about"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
             </ul>
@@ -401,16 +401,16 @@ takes two inputs <code>i1</code> and <code>i2</code> and one hyperparameter inpu
 The latter is assumed to be a positive integer.
 Local parameter <code>k</code> and <code>i3</code>
 need to be protected (e.g., using software redundancy) otherwise the loop might not terminate.</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">approximate</span><span class="p">(</span><span class="kt">int</span> <span class="n">i1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i2</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i3</span><span class="p">)</span> <span class="p">{</span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="kt">int</span> <span class="nf">approximate</span><span class="p">(</span><span class="kt">int</span> <span class="n">i1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i2</span><span class="p">,</span> <span class="kt">int</span> <span class="n">i3</span><span class="p">)</span> <span class="p">{</span>
   <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
   <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">==</span> <span class="n">i3</span><span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">){</span>
     <span class="k">if</span><span class="p">(</span><span class="n">foo</span><span class="p">(</span><span class="n">i1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">bar</span><span class="p">(</span><span class="n">i2</span><span class="p">))</span>
@@ -585,11 +585,12 @@ the special attention it received from the research community.</p>
       <hr>
       <div class="row">
          <!-- <div class="col-xs-10">&copy; 2021 Ammar Ben Khadra -->
-            <div class="col-xs-10">&copy; 2017-2021 Ammar Ben Khadra
+            <div class="col-xs-10">
+              <p> &copy; 2017-2021 Ammar Ben Khadra  </p>
             <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> -->         </div>
-         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
+         <div class="col-xs-2"><p class="pull-right" display="content"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
       </div>
    </div>
 </footer>

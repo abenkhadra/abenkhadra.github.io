@@ -60,7 +60,7 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
                     <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"></i>&nbsp;Archives</a></li>
-                    <li><a href="https://www.eit.uni-kl.de/eis/people/khadra/"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
+                    <li><a href="/pages/about"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
             </ul>
@@ -111,9 +111,8 @@
 For the sake of example, we will choose the function <code>string_prepend.part.5</code>.
 It is small but still contains an interesting number of basic blocks.
 To dump its program graphs, you can simply issue,</p>
-<div class="highlight"><pre><span></span>bcov -m dump -i gas -f <span class="s2">&quot;string_prepend.part.5&quot;</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>bcov -m dump -i gas -f <span class="s2">&quot;string_prepend.part.5&quot;</span>
+</code></pre></div>
 
 <p>This command should produce five DOT files in your current directory.
 To visualize these files, we recommend the interactive viewer <code>xdot</code>.
@@ -192,11 +191,12 @@ Such precision would require instrumenting only 3 BBs among a total of 10 BBs in
       <hr>
       <div class="row">
          <!-- <div class="col-xs-10">&copy; 2021 Ammar Ben Khadra -->
-            <div class="col-xs-10">&copy; 2017-2021 Ammar Ben Khadra
+            <div class="col-xs-10">
+              <p> &copy; 2017-2021 Ammar Ben Khadra  </p>
             <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> -->         </div>
-         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
+         <div class="col-xs-2"><p class="pull-right" display="content"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
       </div>
    </div>
 </footer>

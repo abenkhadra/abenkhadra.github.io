@@ -61,7 +61,7 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
                     <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"></i>&nbsp;Archives</a></li>
-                    <li><a href="https://www.eit.uni-kl.de/eis/people/khadra/"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
+                    <li><a href="/pages/about"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
             </ul>
@@ -135,36 +135,36 @@ with gcc v5.4 or clang v4.8. Note that a nullptr check is in place (line 24) sin
 <code>snd_ptr</code> is expected to be nullptr in case <code>fst_ptr</code> was nullptr.
 Interestingly, this snippet works even when compiled with gcc v6.2 with no optimizations (-O0).
 However, it segfaults at line 22 when compiled with gcc v6.2 at optimization levels (-O1) or higher.</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 <span class="k">class</span> <span class="nc">Base</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
   <span class="kt">int</span> <span class="n">foo</span><span class="p">;</span>
 
-  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
   <span class="n">T</span><span class="o">*</span> <span class="n">as</span><span class="p">()</span>
   <span class="p">{</span>
       <span class="k">return</span> <span class="k">dynamic_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
@@ -229,34 +229,34 @@ of change to the existing code which is a desirable property. Also,
 it has the advantage of maintaining the type safety of the original code.
 That is, method <code>as</code> shall accept only class <code>Base</code> or one of its derived classes as input.
 The final code after applying solution (3) will look something like the following,</p>
-<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span></pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 <span class="k">class</span> <span class="nc">Base</span> <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
   <span class="kt">int</span> <span class="n">foo</span><span class="p">;</span>
 
-  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+  <span class="k">template</span><span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="o">&gt;</span>
   <span class="k">static</span> <span class="n">T</span><span class="o">*</span> <span class="n">as</span><span class="p">(</span><span class="n">Base</span> <span class="o">*</span> <span class="n">ptr</span><span class="p">)</span>
   <span class="p">{</span>
       <span class="k">return</span> <span class="k">dynamic_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">ptr</span><span class="p">);</span>
@@ -295,11 +295,12 @@ in order to catch potential issues early and more often.</p>
       <hr>
       <div class="row">
          <!-- <div class="col-xs-10">&copy; 2021 Ammar Ben Khadra -->
-            <div class="col-xs-10">&copy; 2017-2021 Ammar Ben Khadra
+            <div class="col-xs-10">
+              <p> &copy; 2017-2021 Ammar Ben Khadra  </p>
             <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> -->         </div>
-         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
+         <div class="col-xs-2"><p class="pull-right" display="content"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
       </div>
    </div>
 </footer>

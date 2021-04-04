@@ -60,7 +60,7 @@
         <div class="collapse navbar-collapse navbar-ex1-collapse">
             <ul class="nav navbar-nav">
                     <li><a href="/archives.html"><i class="fa fa-archive" aria-hidden="true"></i>&nbsp;Archives</a></li>
-                    <li><a href="https://www.eit.uni-kl.de/eis/people/khadra/"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
+                    <li><a href="/pages/about"><i class="fa fa-question-circle" aria-hidden="true"></i>&nbsp;About</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
             </ul>
@@ -168,23 +168,21 @@ For example, a heuristic that looks for the <code>push</code>es can provide a ro
 <p>We looked at function identification assuming that if the symbol table is stripped, then we have no alternative but to analyze the binary itself. This assumption might have been valid in the old days of <code>ebp</code> based stack unwinding in x86. However, it is generally not valid anymore in x86-64, or perhaps other ISAs for that matter.</p>
 <p>Nowadays, call frame information (CFI) records are embedded in the majority of commercial off-the-shelf binaries. They are the basis of the modern stack unwinding mechanism used in C++ exception handling. However, there are several good reasons for including CFI records in C programs as well like generating backtraces. This SO <a href="https://stackoverflow.com/a/26302715">answer</a> provides more examples.</p>
 <p>CFI records can be found in the <code>eh_frame</code> section which is part of the loadable binary image. You can dump them using something like,</p>
-<div class="highlight"><pre><span></span>$ readelf --debug-dump<span class="o">=</span>frames /bin/ls
-</pre></div>
-
+<div class="highlight"><pre><span></span><code>$ readelf --debug-dump<span class="o">=</span>frames /bin/ls
+</code></pre></div>
 
 <p>The output shows some Common Information Entry (CIE) records encapsulating many Frame Description Entry (FDE) records like the one in this example,</p>
-<div class="highlight"><pre><span></span><span class="err">00000048 0000000000000024 0000001c FDE cie=00000030 pc=0000000000003770..0000000000003e70</span>
-<span class="err">  DW_CFA_def_cfa_offset: 16</span>
-<span class="err">  DW_CFA_advance_loc: 6 to 0000000000003776</span>
-<span class="err">  DW_CFA_def_cfa_offset: 24</span>
-<span class="err">  DW_CFA_advance_loc: 10 to 0000000000003780</span>
-<span class="err">  DW_CFA_def_cfa_expression (DW_OP_breg7 (rsp): 8; DW_OP_breg16 (rip): 0; DW_OP_lit15; DW_OP_and; DW_OP_lit11; DW_OP_ge; DW_OP_lit3; DW_OP_shl; DW_OP_plus)</span>
-<span class="err">  DW_CFA_nop</span>
-<span class="err">  DW_CFA_nop</span>
-<span class="err">  DW_CFA_nop</span>
-<span class="err">  DW_CFA_nop</span>
-</pre></div>
-
+<div class="highlight"><pre><span></span><code><span class="mf">00000048</span> <span class="mf">0000000000000024</span> <span class="mf">0000001</span><span class="n">c</span> <span class="n">FDE</span> <span class="n">cie</span><span class="o">=</span><span class="mf">00000030</span> <span class="n">pc</span><span class="o">=</span><span class="mf">0000000000003770..0000000000003e70</span>
+  <span class="n">DW_CFA_def_cfa_offset</span><span class="p">:</span> <span class="mf">16</span>
+  <span class="n">DW_CFA_advance_loc</span><span class="p">:</span> <span class="mf">6</span> <span class="kr">to</span> <span class="mf">0000000000003776</span>
+  <span class="n">DW_CFA_def_cfa_offset</span><span class="p">:</span> <span class="mf">24</span>
+  <span class="n">DW_CFA_advance_loc</span><span class="p">:</span> <span class="mf">10</span> <span class="kr">to</span> <span class="mf">0000000000003780</span>
+  <span class="n">DW_CFA_def_cfa_expression</span> <span class="p">(</span><span class="n">DW_OP_breg7</span> <span class="p">(</span><span class="n">rsp</span><span class="p">):</span> <span class="mf">8</span><span class="p">;</span> <span class="n">DW_OP_breg16</span> <span class="p">(</span><span class="n">rip</span><span class="p">):</span> <span class="mf">0</span><span class="p">;</span> <span class="n">DW_OP_lit15</span><span class="p">;</span> <span class="n">DW_OP_and</span><span class="p">;</span> <span class="n">DW_OP_lit11</span><span class="p">;</span> <span class="n">DW_OP_ge</span><span class="p">;</span> <span class="n">DW_OP_lit3</span><span class="p">;</span> <span class="n">DW_OP_shl</span><span class="p">;</span> <span class="n">DW_OP_plus</span><span class="p">)</span>
+  <span class="n">DW_CFA_nop</span>
+  <span class="n">DW_CFA_nop</span>
+  <span class="n">DW_CFA_nop</span>
+  <span class="n">DW_CFA_nop</span>
+</code></pre></div>
 
 <p>This FDE record defines a function in the region from <code>pc=0000000000003770</code> to <code>0000000000003e70</code> which are start and end addresses respectively. This is the only bit of information of concern to us. The cryptic expressions prefixed with <code>DW_</code> can be used by a debugger like <code>gdb</code> to restore register values during stack unwinding.</p>
 <p>I move now to do some hands-on experimentation with CFI records. My goal is to first quantify the existence of the <code>.eh_frame</code> section in practice. More important, to see to what extent the functions defined in <code>.eh_frame</code> section are complete. After all, an <code>.eh_frame</code> with only a handful of function definitions is not that useful. Note the developers might deliberately omit CFI records of some functions to save space.</p>
@@ -229,11 +227,12 @@ About 400 binaries have a coverage ratio of less than 5%. Many of which have emp
       <hr>
       <div class="row">
          <!-- <div class="col-xs-10">&copy; 2021 Ammar Ben Khadra -->
-            <div class="col-xs-10">&copy; 2017-2021 Ammar Ben Khadra
+            <div class="col-xs-10">
+              <p> &copy; 2017-2021 Ammar Ben Khadra  </p>
             <!-- &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
             <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
             <a href="http://getbootstrap.com" target="_blank">Bootstrap</a> -->         </div>
-         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
+         <div class="col-xs-2"><p class="pull-right" display="content"><i class="fa fa-arrow-up"></i> <a href="#">Top</a></p></div>
       </div>
    </div>
 </footer>
